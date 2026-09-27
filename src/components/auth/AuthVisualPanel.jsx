@@ -111,7 +111,7 @@ export function AuthVisualPanel({
                     ))}
                   </div>
 
-                  <div className="mx-auto mt-auto flex w-full max-w-lg items-center gap-2 pt-8">
+                  <div className="mx-auto mt-10 flex w-full max-w-lg items-center gap-2">
                     <button
                       type="button"
                       aria-label="Previous specialty"

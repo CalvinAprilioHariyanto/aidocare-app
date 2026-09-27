@@ -1,7 +1,6 @@
 import React from 'react';
-import { Logo } from '../ui/Logo';
 
-export function AuthLayout({ children, visualPanel, compact = false, showLogo = true }) {
+export function AuthLayout({ children, visualPanel, compact = false }) {
   return (
     <div className={`auth-layout min-h-screen bg-background flex flex-col lg:flex-row p-3 lg:p-4 gap-6 lg:gap-8 font-sans overflow-x-hidden ${compact ? 'auth-layout--compact' : ''}`}>
       {/* Left side: Visual Panel */}
@@ -12,12 +11,6 @@ export function AuthLayout({ children, visualPanel, compact = false, showLogo = 
       {/* Right side: Form Area */}
       <div className="auth-form-area w-full min-w-0 lg:flex-1 flex flex-col px-4 py-8 sm:px-8 lg:py-12 lg:px-16 xl:px-28">
         <div className="w-full max-w-[420px] mx-auto flex-1 flex flex-col">
-          {showLogo && (
-            <div className="auth-logo flex justify-center mb-8 lg:mb-10">
-              <Logo className="transform transition-transform hover:scale-[1.02] duration-300" />
-            </div>
-          )}
-          
           <div className="auth-form-content flex-1 flex flex-col justify-center">
             {children}
           </div>

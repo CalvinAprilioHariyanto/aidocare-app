@@ -81,7 +81,7 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthLayout compact showLogo={false}
+    <AuthLayout compact
       visualPanel={(
         <AuthVisualPanel
           title="Find the Right Care, Faster"
