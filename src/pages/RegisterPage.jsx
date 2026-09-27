@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { AuthAccountSwitcher } from '../components/auth/AuthAccountSwitcher';
 import { AuthLayout } from '../components/auth/AuthLayout';
 import { AuthVisualPanel } from '../components/auth/AuthVisualPanel';
 import { Button } from '../components/ui/Button';
 import { Checkbox } from '../components/ui/Checkbox';
 import { Input } from '../components/ui/Input';
-import { Logo } from '../components/ui/Logo';
 import { PasswordInput } from '../components/ui/PasswordInput';
 import doctorImage from '../assets/images/Doctor2.jpg';
 
@@ -81,7 +81,7 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthLayout compact
+    <AuthLayout compact topAlignForm
       visualPanel={(
         <AuthVisualPanel
           title="Find the Right Care, Faster"
@@ -92,20 +92,7 @@ export function RegisterPage() {
         />
       )}
     >
-      <div className="auth-logo mb-6 flex justify-center">
-        <Logo className="transform transition-transform hover:scale-[1.02] duration-300" />
-      </div>
-
-      <div className="register-tabs mb-6">
-        <div className="grid grid-cols-2 rounded-lg bg-surface-muted p-1" aria-label="Account access">
-          <span className="rounded-md bg-surface px-3 py-2 text-center text-sm font-semibold text-primary shadow-sm" aria-current="page">
-            New Patient
-          </span>
-          <Link to="/login" className="rounded-md px-3 py-2 text-center text-sm font-medium text-text-secondary transition-colors hover:text-primary">
-            Existing Patient
-          </Link>
-        </div>
-      </div>
+      <AuthAccountSwitcher activePage="register" />
 
       <div className="register-heading mb-5">
         <h1 className="text-2xl font-bold text-text-primary">Create Your Account</h1>

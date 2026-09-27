@@ -10,7 +10,10 @@ export function AuthVisualPanel({
   eyebrow,
   carousel = false,
   slides = [],
-  specialties = []
+  specialties = [],
+  titleColor = 'text-primary',
+  imageCallouts = [],
+  imageBackdrop = false
 }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [sliderPosition, setSliderPosition] = useState(35);
@@ -21,7 +24,7 @@ export function AuthVisualPanel({
   }
 
   return (
-    <div className="h-full w-full bg-surface-mint flex flex-col relative overflow-hidden rounded-[2rem]">
+    <div className="h-full w-full bg-linear-to-br from-primary-100 via-surface-mint to-white flex flex-col relative overflow-hidden rounded-[2rem]">
       {/* Organic Background Decoration */}
       <div 
         className="absolute inset-0 opacity-50 pointer-events-none mix-blend-multiply transition-all duration-700"
@@ -62,7 +65,7 @@ export function AuthVisualPanel({
             </p>
           )}
           
-          <h1 className={`${hasSpecialties ? 'text-3xl lg:text-4xl' : 'text-[2rem] lg:text-4xl xl:text-[2.75rem]'} font-bold text-primary leading-[1.15] mb-3 lg:mb-4 tracking-tight`}>
+          <h1 className={`${hasSpecialties ? 'text-3xl lg:text-4xl' : 'text-[2rem] lg:text-4xl xl:text-[2.75rem]'} font-bold ${titleColor} leading-[1.15] mb-3 lg:mb-4 tracking-tight`}>
             {carousel && slides.length > 0 ? slides[currentSlide].title : title}
           </h1>
           
@@ -84,11 +87,26 @@ export function AuthVisualPanel({
             image && (
               <>
               <div className={`relative w-full ${hasSpecialties ? 'rounded-md mt-0' : 'rounded-[2rem] mt-8'} overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-700 hover:scale-[1.01]`}>
+                {imageBackdrop && (
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-x-[8%] top-[12%] bottom-0 rounded-[2rem] bg-primary-100/80"
+                  />
+                )}
                 <img 
                   src={image} 
                   alt={imageAlt}
-                  className={`w-full h-auto ${hasSpecialties ? 'max-h-[36vh] object-cover object-[center_24%]' : 'max-h-[50vh] object-cover object-top'}`}
+                  className={`relative z-[1] w-full h-auto ${hasSpecialties ? 'max-h-[36vh] object-cover object-[center_24%]' : 'max-h-[50vh] object-contain object-center'}`}
                 />
+                {imageCallouts.map(({ label, icon, position }) => (
+                  <div
+                    key={label}
+                    className={`absolute z-10 inline-flex max-w-[80%] items-center gap-1.5 rounded-md bg-white px-2.5 py-2 text-[10px] font-semibold text-text-primary shadow-card sm:text-xs ${position === 'bottom-left' ? 'bottom-[28%] left-[4%]' : 'right-[3%] top-[42%]'}`}
+                  >
+                    <span className="shrink-0 text-info" aria-hidden="true">{icon}</span>
+                    <span>{label}</span>
+                  </div>
+                ))}
               </div>
               {hasSpecialties && (
                 <>
