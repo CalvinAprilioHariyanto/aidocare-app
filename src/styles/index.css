@@ -111,4 +111,32 @@
   }
 }
 
-/* something to commit */
+@media (min-width: 1024px) and (max-height: 780px) {
+  .auth-layout--compact .auth-form-area {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .auth-layout--compact .auth-logo {
+    margin-bottom: 1rem;
+  }
+
+  .auth-layout--compact .register-tabs {
+    margin-bottom: 1rem;
+  }
+
+  .auth-layout--compact .register-heading {
+    margin-bottom: 0.75rem;
+  }
+
+  .auth-layout--compact .register-form,
+  .auth-layout--compact .register-fields {
+    gap: 0.75rem;
+  }
+
+  .auth-layout--compact .register-fields > div {
+    gap: 0.25rem;
+  }
+}
+
+
