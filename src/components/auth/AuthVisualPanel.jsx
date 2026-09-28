@@ -24,7 +24,7 @@ export function AuthVisualPanel({
   }
 
   return (
-    <div className="h-full w-full bg-linear-to-br from-primary-100 via-surface-mint to-white flex flex-col relative overflow-hidden rounded-[2rem]">
+    <div className="h-full w-full bg-linear-to-br from-primary-100 via-surface-mint to-white flex flex-col relative overflow-hidden rounded-b-[2rem] lg:rounded-b-none lg:rounded-r-[2rem]">
       {/* Organic Background Decoration */}
       <div 
         className="absolute inset-0 opacity-50 pointer-events-none mix-blend-multiply transition-all duration-700"
@@ -57,8 +57,8 @@ export function AuthVisualPanel({
         />
       )}
       
-      <div className={`relative z-10 flex-1 flex flex-col ${hasSpecialties ? 'pt-8 pb-12 px-5 sm:px-8 lg:pt-10 lg:pb-14 lg:px-10 xl:px-12' : 'pt-12 pb-8 px-8 lg:px-14'}`}>
-        <div className={`${hasSpecialties ? 'max-w-lg' : 'max-w-lg mt-4 lg:mt-8'}`}>
+      <div className={`relative z-10 flex-1 flex flex-col ${hasSpecialties ? 'pt-8 pb-12 px-5 sm:px-8 lg:pt-10 lg:pb-14 lg:px-10 xl:px-12' : 'pt-10 pb-8 px-8 lg:pt-12 lg:px-14'}`}>
+        <div className="max-w-lg">
           {eyebrow && (
             <p className="text-primary font-semibold tracking-wide text-sm mb-4">
               {eyebrow}
@@ -76,7 +76,7 @@ export function AuthVisualPanel({
           )}
         </div>
 
-        <div className={`${hasSpecialties ? 'mt-5 lg:mt-7 justify-start' : 'mt-8 lg:mt-12 justify-end'} relative flex flex-1 flex-col`}>
+        <div className={`${hasSpecialties ? 'mt-5 lg:mt-7' : 'mt-4 lg:mt-6'} justify-start relative flex flex-1 flex-col`}>
           {carousel && slides.length > 0 ? (
             <AuthCarousel 
               slides={slides} 
@@ -86,7 +86,7 @@ export function AuthVisualPanel({
           ) : (
             image && (
               <>
-              <div className={`relative w-full ${hasSpecialties ? 'rounded-md mt-0' : 'rounded-[2rem] mt-8'} overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-700 hover:scale-[1.01]`}>
+              <div className={`relative w-full ${hasSpecialties ? 'rounded-md mt-0' : 'rounded-[2rem] mt-2 lg:mt-4'} overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-700 hover:scale-[1.01]`}>
                 {imageBackdrop && (
                   <div
                     aria-hidden="true"
@@ -96,7 +96,7 @@ export function AuthVisualPanel({
                 <img 
                   src={image} 
                   alt={imageAlt}
-                  className={`relative z-[1] w-full h-auto ${hasSpecialties ? 'max-h-[36vh] object-cover object-[center_24%]' : 'max-h-[50vh] object-contain object-center'}`}
+                  className={`relative z-[1] w-full h-auto ${hasSpecialties ? 'max-h-[36vh] object-cover object-[center_24%]' : 'max-h-[50vh] lg:max-h-[54vh] object-contain object-top'}`}
                 />
                 {imageCallouts.map(({ label, icon, position }) => (
                   <div
