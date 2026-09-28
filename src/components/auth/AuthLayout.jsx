@@ -2,9 +2,9 @@ import React from 'react';
 
 export function AuthLayout({ children, visualPanel, compact = false, topAlignForm = false }) {
   return (
-    <div className={`auth-layout min-h-screen bg-background flex flex-col lg:h-screen lg:flex-row lg:overflow-hidden p-3 lg:p-4 gap-6 lg:gap-8 font-sans overflow-x-hidden ${compact ? 'auth-layout--compact' : ''}`}>
+    <div className={`auth-layout min-h-screen bg-background flex flex-col lg:h-screen lg:flex-row lg:overflow-hidden font-sans overflow-x-hidden ${compact ? 'auth-layout--compact' : ''}`}>
       {/* Left side: Visual Panel */}
-      <div className="w-full lg:w-[calc(48%-1rem)] xl:w-[calc(50%-1rem)] flex-shrink-0 min-h-[400px] lg:h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2rem)] rounded-[2rem] overflow-hidden shadow-sm">
+      <div className="w-full lg:w-1/2 flex-shrink-0 min-h-[400px] lg:h-screen lg:min-h-screen overflow-hidden rounded-b-[2rem] lg:rounded-b-none lg:rounded-r-[2rem] shadow-sm">
         {visualPanel}
       </div>
 

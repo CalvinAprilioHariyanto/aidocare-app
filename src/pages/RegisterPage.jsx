@@ -8,7 +8,14 @@ import { Button } from '../components/ui/Button';
 import { Checkbox } from '../components/ui/Checkbox';
 import { Input } from '../components/ui/Input';
 import { PasswordInput } from '../components/ui/PasswordInput';
-import doctorImage from '../assets/images/Doctor2.jpg';
+import slide1 from '../assets/images/slide1.jpg';
+import slide2 from '../assets/images/slide2.jpg';
+import slide3 from '../assets/images/slide3.jpg';
+import slide4 from '../assets/images/slide4.jpg';
+import slide5 from '../assets/images/slide5.jpg';
+
+const registerSlideImages = [slide1, slide2, slide3, slide4, slide5];
+
 
 const personIcon = (
   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
@@ -86,9 +93,10 @@ export function RegisterPage() {
         <AuthVisualPanel
           title="Find the Right Care, Faster"
           description="Not sure which specialist to see? Get guided to the right care based on your needs."
-          image={doctorImage}
-          imageAlt="A doctor ready to help a patient"
+          images={registerSlideImages}
           specialties={['General Doctor', 'Cardiology', 'Dermatology', 'Dentist', 'Pediatricians']}
+          autoSlide={true}
+          autoSlideInterval={3500}
         />
       )}
     >
