@@ -1,26 +1,71 @@
-import React, { useState } from 'react';
-import { AuthCarousel } from './AuthCarousel';
+import React, { useState, useEffect } from 'react';
 import waveImage from '../../assets/images/Wave.png';
 
 export function AuthVisualPanel({ 
   title, 
   description, 
   image, 
+  images = [],
   imageAlt = "Visual",
   eyebrow,
-  carousel = false,
-  slides = [],
   specialties = [],
   titleColor = 'text-primary',
   imageCallouts = [],
-  imageBackdrop = false
+  imageBackdrop = false,
+  autoSlide = true,
+  autoSlideInterval = 3500,
 }) {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [sliderPosition, setSliderPosition] = useState(35);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [touchStart, setTouchStart] = useState(null);
+
+  // Normalize image list
+  const imageList = (images && images.length > 0)
+    ? images.map((img) => (typeof img === 'string' ? { src: img, alt: imageAlt } : img))
+    : (image ? [{ src: image, alt: imageAlt }] : []);
+
+  const totalImages = imageList.length;
+  const isCarousel = totalImages > 1;
+  const currentImgObj = imageList[currentImageIndex] || imageList[0];
+
   const hasSpecialties = specialties.length > 0;
 
-  function moveSlider(direction) {
-    setSliderPosition((current) => Math.min(100, Math.max(0, current + direction * 20)));
+  // Auto-slide effect that pauses when hovered
+  useEffect(() => {
+    if (!autoSlide || !isCarousel || isHovered) return;
+
+    const timer = setInterval(() => {
+      setCurrentImageIndex((curr) => (curr + 1) % totalImages);
+    }, autoSlideInterval);
+
+    return () => clearInterval(timer);
+  }, [autoSlide, isCarousel, isHovered, totalImages, autoSlideInterval]);
+
+  function handlePrev() {
+    setCurrentImageIndex((curr) => (curr - 1 + totalImages) % totalImages);
+  }
+
+  function handleNext() {
+    setCurrentImageIndex((curr) => (curr + 1) % totalImages);
+  }
+
+  function handleSliderChange(index) {
+    setCurrentImageIndex(Math.min(totalImages - 1, Math.max(0, index)));
+  }
+
+  function handleTouchStart(e) {
+    setTouchStart(e.targetTouches[0].clientX);
+  }
+
+  function handleTouchEnd(e) {
+    if (touchStart === null) return;
+    const diff = touchStart - e.changedTouches[0].clientX;
+    if (diff > 50) {
+      handleNext();
+    } else if (diff < -50) {
+      handlePrev();
+    }
+    setTouchStart(null);
   }
 
   return (
@@ -57,36 +102,36 @@ export function AuthVisualPanel({
         />
       )}
       
-      <div className={`relative z-10 flex-1 flex flex-col ${hasSpecialties ? 'pt-8 pb-12 px-5 sm:px-8 lg:pt-10 lg:pb-14 lg:px-10 xl:px-12' : 'pt-10 pb-8 px-8 lg:pt-12 lg:px-14'}`}>
+      <div className={`relative z-10 flex-1 flex flex-col ${hasSpecialties ? 'pt-6 pb-6 px-5 sm:px-8 lg:pt-8 lg:pb-8 lg:px-10 xl:px-12' : 'pt-10 pb-8 px-8 lg:pt-12 lg:px-14'}`}>
         <div className="max-w-lg">
           {eyebrow && (
-            <p className="text-primary font-semibold tracking-wide text-sm mb-4">
+            <p className="text-primary font-semibold tracking-wide text-sm mb-3">
               {eyebrow}
             </p>
           )}
           
-          <h1 className={`${hasSpecialties ? 'text-3xl lg:text-4xl' : 'text-[2rem] lg:text-4xl xl:text-[2.75rem]'} font-bold ${titleColor} leading-[1.15] mb-3 lg:mb-4 tracking-tight`}>
-            {carousel && slides.length > 0 ? slides[currentSlide].title : title}
+          <h1 className={`${hasSpecialties ? 'text-2xl sm:text-3xl lg:text-[2rem]' : 'text-[2rem] lg:text-4xl xl:text-[2.75rem]'} font-bold ${titleColor} leading-[1.15] mb-2 lg:mb-3 tracking-tight`}>
+            {title}
           </h1>
           
           {!hasSpecialties && (
             <p className="text-lg lg:text-xl text-text-secondary font-normal leading-relaxed max-w-sm">
-              {carousel && slides.length > 0 ? slides[currentSlide].description : description}
+              {description}
             </p>
           )}
         </div>
 
-        <div className={`${hasSpecialties ? 'mt-5 lg:mt-7' : 'mt-4 lg:mt-6'} justify-start relative flex flex-1 flex-col`}>
-          {carousel && slides.length > 0 ? (
-            <AuthCarousel 
-              slides={slides} 
-              currentSlide={currentSlide} 
-              onSlideChange={setCurrentSlide} 
-            />
-          ) : (
-            image && (
-              <>
-              <div className={`relative w-full ${hasSpecialties ? 'rounded-md mt-0' : 'rounded-[2rem] mt-2 lg:mt-4'} overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-700 hover:scale-[1.01]`}>
+        <div className={`${hasSpecialties ? 'mt-3 lg:mt-4' : 'mt-4 lg:mt-6'} justify-start relative flex flex-1 flex-col`}>
+          {currentImgObj && (
+            <>
+              {/* Image Slider Container (Half-page height when hasSpecialties) */}
+              <div 
+                className={`relative w-full ${hasSpecialties ? 'rounded-2xl mt-0 h-[46vh] lg:h-[48vh] xl:h-[50vh]' : 'rounded-[2rem] mt-2 lg:mt-4'} overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-700`}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+              >
                 {imageBackdrop && (
                   <div
                     aria-hidden="true"
@@ -94,10 +139,12 @@ export function AuthVisualPanel({
                   />
                 )}
                 <img 
-                  src={image} 
-                  alt={imageAlt}
-                  className={`relative z-[1] w-full h-auto ${hasSpecialties ? 'max-h-[36vh] object-cover object-[center_24%]' : 'max-h-[50vh] lg:max-h-[54vh] object-contain object-top'}`}
+                  key={currentImageIndex}
+                  src={currentImgObj.src || currentImgObj} 
+                  alt={currentImgObj.alt || imageAlt}
+                  className={`relative z-[1] w-full ${hasSpecialties ? 'h-full object-cover object-[center_18%]' : 'h-auto max-h-[50vh] lg:max-h-[54vh] object-contain object-top'} transition-opacity duration-300`}
                 />
+
                 {imageCallouts.map(({ label, icon, position }) => (
                   <div
                     key={label}
@@ -107,19 +154,69 @@ export function AuthVisualPanel({
                     <span>{label}</span>
                   </div>
                 ))}
+
+                {/* Carousel Navigation Arrows & Indicators on Image (matching Half Page Slider) */}
+                {isCarousel && (
+                  <>
+                    {/* Left Chevron */}
+                    <button
+                      type="button"
+                      onClick={handlePrev}
+                      aria-label="Previous slide"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 z-20 grid h-10 w-10 place-items-center rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-xs transition-all hover:scale-105 cursor-pointer shadow-md focus-visible:outline-2 focus-visible:outline-white"
+                    >
+                      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                        <path d="m15 18-6-6 6-6" />
+                      </svg>
+                    </button>
+
+                    {/* Right Chevron */}
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      aria-label="Next slide"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 z-20 grid h-10 w-10 place-items-center rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-xs transition-all hover:scale-105 cursor-pointer shadow-md focus-visible:outline-2 focus-visible:outline-white"
+                    >
+                      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                    </button>
+
+                    {/* Bottom Gradient Overlay for indicator contrast */}
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 via-black/20 to-transparent z-10" />
+
+                    {/* Slide Bar Indicators (Segmented dashes at bottom of slider) */}
+                    <div className="absolute bottom-3 inset-x-0 z-20 flex justify-center items-center gap-2">
+                      {imageList.map((_, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => handleSliderChange(index)}
+                          aria-label={`Go to slide ${index + 1}`}
+                          className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                            index === currentImageIndex
+                              ? 'w-8 bg-white shadow-sm'
+                              : 'w-3 bg-white/50 hover:bg-white/80'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
+
               {hasSpecialties && (
                 <>
                   <p className="mx-auto mt-3 w-full max-w-lg text-center text-sm leading-snug text-text-secondary lg:text-base">
                     {description}
                   </p>
-                  <div className="mx-auto mt-10 flex w-full max-w-lg flex-col items-center gap-4">
+                  <div className="mx-auto mt-3.5 flex w-full max-w-lg flex-col items-center gap-2.5">
                     {[specialties.slice(0, 3), specialties.slice(3)].map((row, rowIndex) => (
-                      <div key={rowIndex} className="flex w-full flex-wrap justify-center gap-x-4 gap-y-4">
+                      <div key={rowIndex} className="flex w-full flex-wrap justify-center gap-x-3 gap-y-2.5">
                         {row.map((specialty) => (
                           <span
                             key={specialty}
-                            className="inline-flex items-center gap-2 rounded-md border border-white/70 bg-white/90 px-4 py-2 text-sm font-semibold text-text-primary shadow-sm"
+                            className="inline-flex items-center gap-2 rounded-md border border-white/70 bg-white/90 px-3.5 py-1.5 text-sm font-semibold text-text-primary shadow-sm"
                           >
                             <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
                             {specialty}
@@ -128,52 +225,9 @@ export function AuthVisualPanel({
                       </div>
                     ))}
                   </div>
-
-                  <div className="mx-auto mt-10 flex w-full max-w-lg items-center gap-2">
-                    <button
-                      type="button"
-                      aria-label="Previous specialty"
-                      onClick={() => moveSlider(-1)}
-                      className="grid h-7 w-7 shrink-0 place-items-center text-primary transition-colors hover:text-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                    >
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                        <path d="m15 18-6-6 6-6" />
-                      </svg>
-                    </button>
-
-                    <div className="relative h-2 flex-1 rounded-full bg-white shadow-sm">
-                      <div
-                        className="absolute top-0 h-full w-1/4 rounded-full bg-primary transition-[left] duration-500 ease-out"
-                        style={{ left: `${sliderPosition * 0.75}%` }}
-                        aria-hidden="true"
-                      />
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="1"
-                        value={sliderPosition}
-                        onChange={(event) => setSliderPosition(Number(event.target.value))}
-                        aria-label="Move the carousel position"
-                        className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      aria-label="Next specialty"
-                      onClick={() => moveSlider(1)}
-                      className="grid h-7 w-7 shrink-0 place-items-center text-primary transition-colors hover:text-primary-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                    >
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                        <path d="m9 18 6-6-6-6" />
-                      </svg>
-                    </button>
-                  </div>
                 </>
               )}
-              </>
-            )
+            </>
           )}
         </div>
       </div>
