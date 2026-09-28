@@ -28,8 +28,8 @@ export function Input({
         <input
           id={inputId}
           className={`
-            w-full px-4 py-3.5 rounded-xl border transition-all duration-200
-            focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10
+            w-full appearance-none px-4 py-3.5 rounded-xl border transition-all duration-200
+            outline-none focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10
             disabled:bg-surface-muted disabled:text-text-muted disabled:cursor-not-allowed
             ${icon ? 'pl-11' : ''}
             ${rightElement ? 'pr-12' : ''}
