@@ -209,17 +209,17 @@ export function HealthProfilePage({ registrationMode = false }) {
 
 	return (
 		<div className={registrationMode ? 'fixed inset-0 h-dvh overflow-hidden bg-background' : 'min-h-screen bg-background px-4 py-6 sm:px-6 lg:px-8'}>
-			<div className={registrationMode ? 'relative mx-auto flex h-full max-w-5xl flex-col overflow-hidden px-4 py-5 sm:px-6 lg:px-8' : 'mx-auto max-w-7xl'}>
+			<div className={registrationMode ? 'relative mx-auto flex h-full max-w-5xl flex-col overflow-hidden px-4 py-3 sm:px-6 sm:py-5 lg:px-8' : 'mx-auto max-w-7xl'}>
 				{registrationMode ? (
-					<header className="mb-5 flex shrink-0 items-center justify-between gap-4">
+					<header className="mb-3 flex shrink-0 items-center justify-between gap-2 sm:mb-5 sm:gap-4">
 						<div className="flex items-center gap-3">
-							<div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-sm font-bold text-white shadow-card">AC</div>
-							<div>
+							<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-sm font-bold text-white shadow-card sm:h-11 sm:w-11">AC</div>
+							<div className="min-w-0">
 								<p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Aido Care</p>
-								<h1 className="text-lg font-bold text-text-primary">Set up your health profile</h1>
+								<h1 className="text-base font-bold text-text-primary sm:text-lg">Set up your health profile</h1>
 							</div>
 						</div>
-						<button type="button" onClick={logout} className="rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-secondary transition hover:border-primary hover:text-primary">Log out</button>
+						<button type="button" onClick={logout} className="shrink-0 whitespace-nowrap rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold text-text-secondary transition hover:border-primary hover:text-primary sm:px-4">Log out</button>
 					</header>
 				) : (
 					<header className="mb-8 rounded-[2rem] bg-surface p-5 shadow-card sm:p-6 lg:p-8">
@@ -248,7 +248,7 @@ export function HealthProfilePage({ registrationMode = false }) {
 				)}
 
 				{registrationMode && (
-					<div className="mb-5 shrink-0">
+					<div className="mb-3 shrink-0 sm:mb-5">
 						<div className="mb-3 flex items-center justify-between gap-3">
 							<p className="text-sm font-semibold text-text-primary">Step {activeStep + 1} of {registrationSteps.length}</p>
 							<p className="text-sm text-text-muted">{Math.round(((activeStep + 1) / registrationSteps.length) * 100)}% complete</p>
@@ -256,22 +256,22 @@ export function HealthProfilePage({ registrationMode = false }) {
 						<div className="h-2 overflow-hidden rounded-full bg-primary-100">
 							<div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${((activeStep + 1) / registrationSteps.length) * 100}%` }} />
 						</div>
-						<div className="mt-5">
+						<div className="mt-3 sm:mt-5">
 							<p className="text-sm font-semibold text-primary">HEALTH PROFILE</p>
-							<h2 className="mt-1 text-2xl font-bold text-text-primary sm:text-3xl">{registrationSteps[activeStep].title}</h2>
+							<h2 className="mt-1 text-xl font-bold text-text-primary sm:text-3xl">{registrationSteps[activeStep].title}</h2>
 							<p className="mt-2 text-sm text-text-secondary">{registrationSteps[activeStep].description}</p>
 						</div>
 					</div>
 				)}
 
 				<div className={registrationMode ? 'flex min-h-0 flex-1 flex-col pb-24' : 'grid gap-6 xl:grid-cols-[1.6fr_0.8fr]'}>
-					<form id="patient-profile-form" onSubmit={handleSubmit} className={registrationMode ? 'flex min-h-0 flex-1 flex-col space-y-4' : 'space-y-6'}>
-						<section className={`rounded-[2rem] border border-border bg-surface p-5 shadow-card sm:p-6 ${registrationMode && activeStep !== 0 ? 'hidden' : ''}`}>
-							<div className="mb-5 flex items-center gap-3">
+					<form id="patient-profile-form" onSubmit={handleSubmit} className={registrationMode ? 'flex min-h-0 flex-1 flex-col space-y-3 sm:space-y-4' : 'space-y-6'}>
+						<section className={`rounded-3xl border border-border bg-surface p-4 shadow-card sm:rounded-[2rem] sm:p-6 ${registrationMode && activeStep !== 0 ? 'hidden' : ''} ${registrationMode && activeStep === 0 ? 'flex min-h-0 flex-1 flex-col' : ''}`}>
+							<div className={`mb-4 flex items-center gap-3 sm:mb-5 ${registrationMode ? 'max-sm:hidden' : ''}`}>
 								<span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-sm font-bold text-primary">01</span>
 								<h2 className="text-xl font-bold text-text-primary">Personal Information</h2>
 							</div>
-							<div className="grid gap-4 md:grid-cols-2">
+							<div className={`grid gap-4 md:grid-cols-2 ${registrationMode && activeStep === 0 ? 'min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1' : ''}`}>
 								<Input label="First Name" name="firstName" type="text" value={profile.firstName} onChange={handleChange} />
 								<Input label="Last Name" name="lastName" type="text" value={profile.lastName} onChange={handleChange} />
 								<div>
@@ -333,9 +333,9 @@ export function HealthProfilePage({ registrationMode = false }) {
 							</div>
 						</section>
 
-						<section className={`rounded-[2rem] border border-border bg-surface p-5 shadow-card sm:p-6 ${registrationMode && activeStep !== 1 ? 'hidden' : ''}`}>
-							<div className="mb-5 flex items-center gap-3"><span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-sm font-bold text-primary">02</span><h2 className="text-xl font-bold text-text-primary">Basic Health</h2></div>
-							<div className="grid gap-4 md:grid-cols-2">
+						<section className={`rounded-3xl border border-border bg-surface p-4 shadow-card sm:rounded-[2rem] sm:p-6 ${registrationMode && activeStep !== 1 ? 'hidden' : ''} ${registrationMode && activeStep === 1 ? 'flex min-h-0 flex-1 flex-col' : ''}`}>
+							<div className={`mb-4 flex items-center gap-3 sm:mb-5 ${registrationMode ? 'max-sm:hidden' : ''}`}><span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-sm font-bold text-primary">02</span><h2 className="text-xl font-bold text-text-primary">Basic Health</h2></div>
+							<div className={`grid gap-4 md:grid-cols-2 ${registrationMode && activeStep === 1 ? 'min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1' : ''}`}>
 								<div>
 									<label className="mb-2 block text-sm font-medium text-text-secondary ml-1">Blood Type</label>
 									<div className="relative">
@@ -353,9 +353,9 @@ export function HealthProfilePage({ registrationMode = false }) {
 							</div>
 						</section>
 
-						<section className={`rounded-[2rem] border border-border bg-surface p-5 shadow-card sm:p-6 ${registrationMode && activeStep !== 2 ? 'hidden' : ''}`}>
-							<div className="mb-5 flex items-center gap-3"><span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-sm font-bold text-primary">03</span><h2 className="text-xl font-bold text-text-primary">Medical History</h2></div>
-							<div className="grid gap-4 md:grid-cols-2">
+						<section className={`rounded-3xl border border-border bg-surface p-4 shadow-card sm:rounded-[2rem] sm:p-6 ${registrationMode && activeStep !== 2 ? 'hidden' : ''} ${registrationMode && activeStep === 2 ? 'flex min-h-0 flex-1 flex-col' : ''}`}>
+							<div className={`mb-4 flex items-center gap-3 sm:mb-5 ${registrationMode ? 'max-sm:hidden' : ''}`}><span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-sm font-bold text-primary">03</span><h2 className="text-xl font-bold text-text-primary">Medical History</h2></div>
+							<div className={`grid gap-4 md:grid-cols-2 ${registrationMode && activeStep === 2 ? 'min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1' : ''}`}>
 								<div className="md:col-span-2"><Input label="Current Medications" name="currentMedications" type="text" value={profile.currentMedications} onChange={handleChange} placeholder="Vitamin C, Ibuprofen" /></div>
 								<div className="md:col-span-2"><Input label="Previous Surgeries" name="previousSurgeries" type="text" value={profile.previousSurgeries} onChange={handleChange} placeholder="Appendectomy (2017)" /></div>
 								<div className="md:col-span-2">
@@ -365,7 +365,7 @@ export function HealthProfilePage({ registrationMode = false }) {
 							</div>
 						</section>
 
-						<section className={`rounded-[2rem] border border-border bg-surface p-5 shadow-card sm:p-6 ${registrationMode && activeStep !== 3 ? 'hidden' : ''} ${registrationMode && activeStep === 3 ? 'flex min-h-0 flex-1 flex-col' : ''}`}>
+						<section className={`rounded-3xl border border-border bg-surface p-4 shadow-card sm:rounded-[2rem] sm:p-6 ${registrationMode && activeStep !== 3 ? 'hidden' : ''} ${registrationMode && activeStep === 3 ? 'flex min-h-0 flex-1 flex-col' : ''}`}>
 							<div className="mb-5 flex shrink-0 items-center justify-between gap-3">
 								<div className="flex items-center gap-3"><span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-sm font-bold text-primary">04</span><h2 className="text-xl font-bold text-text-primary">Emergency Contact</h2></div>
 								<button type="button" onClick={addEmergencyContact} className="rounded-xl bg-primary-50 px-3 py-2 text-sm font-semibold text-primary hover:bg-primary-100">+ Add Contact</button>
@@ -387,18 +387,18 @@ export function HealthProfilePage({ registrationMode = false }) {
 							</div>
 						</section>
 						{registrationMode && (
-							<div className="absolute inset-x-4 bottom-5 z-20 space-y-4 bg-background/95 pt-4 backdrop-blur sm:inset-x-6 lg:inset-x-8">
-								<div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
-								<div>
-									<button type="button" onClick={handleFillLater} className="text-sm font-semibold text-primary transition hover:text-primary-800">Fill later</button>
-									<p className="mt-1 text-xs text-text-muted">You can fill this later in Settings → Profile.</p>
+							<div className="absolute inset-x-3 bottom-3 z-20 space-y-3 bg-background/95 pt-3 backdrop-blur sm:inset-x-6 sm:bottom-5 sm:space-y-4 sm:pt-4 lg:inset-x-8">
+								<div className="flex flex-row items-center justify-between gap-2 sm:gap-4">
+								<div className="min-w-0 max-w-[11rem] max-[380px]:max-w-none">
+									<button type="button" onClick={handleFillLater} className="whitespace-nowrap text-sm font-semibold text-primary transition hover:text-primary-800">Fill later</button>
+									<p className="mt-1 text-[11px] text-text-muted sm:text-xs">You can fill this later in Settings → Profile.</p>
 								</div>
-								<div className="flex items-center justify-between gap-3 sm:justify-end">
-									{activeStep > 0 && <button type="button" onClick={() => goToStep(activeStep - 1)} className="rounded-xl border border-border bg-surface px-5 py-3 text-sm font-semibold text-text-secondary transition hover:border-primary hover:text-primary">Back</button>}
+								<div className="flex shrink-0 items-center gap-2 sm:gap-3">
+									{activeStep > 0 && <button type="button" onClick={() => goToStep(activeStep - 1)} className="rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-text-secondary transition hover:border-primary hover:text-primary sm:px-5 sm:py-3">Back</button>}
 									{activeStep < registrationSteps.length - 1 ? (
-										<button type="button" onClick={() => goToStep(activeStep + 1)} className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700">Continue</button>
+										<button type="button" onClick={() => goToStep(activeStep + 1)} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 sm:px-6 sm:py-3">Continue</button>
 									) : (
-										<button type="submit" className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700">{saved ? 'Saved' : 'Save profile'}</button>
+										<button type="submit" className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 sm:px-6 sm:py-3">{saved ? 'Saved' : 'Save profile'}</button>
 									)}
 								</div>
 								</div>
