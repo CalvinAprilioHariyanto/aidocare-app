@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { PatientProfilePage } from './pages/PatientProfilePage';
 
 function PatientDashboard() {
   const { user, logout } = useAuth();
@@ -42,7 +43,7 @@ function App() {
         path="/patient"
         element={
           <ProtectedRoute allowedRole="patient">
-            <PatientDashboard />
+            <PatientProfilePage />
           </ProtectedRoute>
         }
       />
