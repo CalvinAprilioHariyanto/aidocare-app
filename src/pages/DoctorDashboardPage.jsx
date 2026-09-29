@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import { todayAppointments, patientsRequiringAttention, upcomingAppointments, recentActivities } from '../data/doctorDashboard';
 
 /* ─── Icon Library (consistent stroke style: 1.8 weight, round caps) ─── */
@@ -223,7 +224,7 @@ function PatientPreviewModal({ patient, onClose }) {
    ═════════════════════════════════════════════ */
 
 export function DoctorDashboardPage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   
   // Local state for interactive elements
   const [appointments, setAppointments] = useState(todayAppointments);
@@ -233,7 +234,7 @@ export function DoctorDashboardPage() {
 
   // Mock User Data for Doctor (fallback if not in context)
   const doctorName = user?.lastName ? `Dr. ${user.lastName}` : 'Dr. Sarah Wilson';
-  const specialty = user?.specialty || 'General Practitioner';
+
 
   /* Derived data */
   const filteredAppointments = useMemo(() => {
@@ -263,46 +264,7 @@ export function DoctorDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* ───── Top Navigation Bar ───── */}
-      <nav className="sticky top-0 z-30 border-b border-border bg-surface/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Brand */}
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 text-xs font-bold text-white shadow-sm">AC</div>
-            <div className="hidden sm:block">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">Aido Care</p>
-              <p className="text-sm font-semibold text-text-primary -mt-0.5">Doctor Portal</p>
-            </div>
-          </div>
-
-          {/* Right controls */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <button className="relative flex h-9 w-9 items-center justify-center rounded-xl text-text-muted transition hover:bg-surface-muted hover:text-text-primary">
-              {icons.bell}
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-error ring-2 ring-surface" />
-            </button>
-            <div className="hidden h-6 w-px bg-border sm:block" />
-            <div className="hidden items-center gap-3 sm:flex">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 text-sm font-bold text-primary">
-                {doctorName.replace('Dr. ', '').split(' ').map(n => n[0]).join('')}
-              </div>
-              <div className="hidden md:block">
-                <p className="text-sm font-semibold text-text-primary leading-tight">{doctorName}</p>
-                <p className="text-[11px] text-text-muted">{specialty}</p>
-              </div>
-            </div>
-            <button
-              onClick={logout}
-              className="flex h-9 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-medium text-text-secondary transition hover:border-error/30 hover:bg-error-light hover:text-error"
-            >
-              {icons.logout}
-              <span className="hidden sm:inline">Log out</span>
-            </button>
-          </div>
-        </div>
-      </nav>
-
+    <div className="w-full">
       {/* ───── Main Content ───── */}
       <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
@@ -568,13 +530,14 @@ export function DoctorDashboardPage() {
               <h3 className="mb-4 text-sm font-bold text-text-primary uppercase tracking-wider">Quick Actions</h3>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { icon: icons.calendar, label: 'Schedule', primary: true },
-                  { icon: icons.users,    label: 'Patients' },
-                  { icon: icons.heartPulse, label: 'Records' },
-                  { icon: icons.stethoscope, label: 'Prescriptions' },
+                  { icon: icons.calendar, label: 'Schedule', primary: true, to: '/doctor/schedule' },
+                  { icon: icons.users,    label: 'Patients', to: '/doctor/patients' },
+                  { icon: icons.heartPulse, label: 'Records', to: '/doctor/records' },
+                  { icon: icons.stethoscope, label: 'Settings', to: '/doctor/settings' },
                 ].map((action, i) => (
-                  <button
+                  <Link
                     key={i}
+                    to={action.to}
                     className={`flex flex-col items-center gap-2 rounded-xl p-3 text-center transition-all duration-200 ${
                       action.primary
                         ? 'bg-primary text-white shadow-sm hover:bg-primary-800 active:scale-[0.97]'
@@ -583,7 +546,7 @@ export function DoctorDashboardPage() {
                   >
                     {action.icon}
                     <span className="text-[11px] font-semibold uppercase tracking-wider">{action.label}</span>
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
