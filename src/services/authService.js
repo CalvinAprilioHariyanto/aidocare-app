@@ -1,94 +1,76 @@
-import { mockUsers } from '../data/users';
+const API_URL = import.meta.env.VITE_API_URL || 'https://aidocare-backend-production.up.railway.app';
 
-// In-memory array acting as our mock database for the session
-let currentUsers = [...mockUsers];
-let nextPatientId = 2; // Since PAT-001 already exists
-
-/**
- * MOCK AUTHENTICATION SERVICE
- * WARNING: This is for local development and demonstration only.
- * DO NOT use this in production. Real applications require secure backend
- * authentication, hashed passwords, and token-based sessions.
- */
-
-export function login(email, password) {
-  if (!email || !password) {
-    return {
-      success: false,
-      message: "Email and password are required."
-    };
+async function request(path, options = {}) {
+  let response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
+  } catch {
+    throw new Error('Unable to connect to the server. Please try again.');
   }
 
-  const normalizedEmail = email.trim().toLowerCase();
-  
-  const user = currentUsers.find(u => u.email.toLowerCase() === normalizedEmail);
-
-  if (!user || user.password !== password) {
-    return {
-      success: false,
-      message: "Invalid email or password."
-    };
+  let data = {};
+  try {
+    data = await response.json();
+  } catch {
+    // Some error responses may not contain a JSON body.
   }
 
-  // Omit password from the returned user object
-  const { password: _, ...userWithoutPassword } = user;
+  if (!response.ok) {
+    throw new Error(data.message || `Request failed (${response.status}).`);
+  }
 
+  return data;
+}
+
+export function normalizeUser(user) {
   return {
-    success: true,
-    user: userWithoutPassword
+    ...user,
+    role: user.role?.toLowerCase(),
   };
 }
 
-export function register(userData) {
-  const { firstName, lastName, email, phone, password } = userData;
+export async function login(email, password) {
+  const data = await request('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
 
-  if (!firstName || !lastName || !email || !password) {
-    return {
-      success: false,
-      message: "Please fill in all required fields."
-    };
+  if (!data.token || !data.user) {
+    throw new Error('The server returned an invalid login response.');
   }
 
-  const normalizedEmail = email.trim().toLowerCase();
+  return { token: data.token, user: normalizeUser(data.user) };
+}
 
-  // Check if email already exists
-  const emailExists = currentUsers.some(u => u.email.toLowerCase() === normalizedEmail);
-  
-  if (emailExists) {
-    return {
-      success: false,
-      message: "An account with this email already exists."
-    };
+export async function register(userData) {
+  const { firstName, lastName, email, phone, phoneNumber, password, confirmPassword } = userData;
+  return request('/api/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({
+      firstName,
+      lastName,
+      email,
+      phoneNumber: phoneNumber || phone,
+      password,
+      confirmPassword: confirmPassword || password,
+    }),
+  });
+}
+
+export async function getCurrentUser(token) {
+  const data = await request('/api/auth/me', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!data.user) {
+    throw new Error('The server returned an invalid user response.');
   }
 
-  // Generate new ID and create patient account
-  const newId = `PAT-${String(nextPatientId).padStart(3, '0')}`;
-  nextPatientId++;
-
-  const newUser = {
-    id: newId,
-    role: "patient", // Public registrations are always patients
-    firstName: firstName.trim(),
-    lastName: lastName.trim(),
-    email: normalizedEmail,
-    phone: phone ? phone.trim() : "",
-    password: password, // WARNING: Plain text for mock demo only
-    
-    // Initialize empty profile fields
-    dateOfBirth: "",
-    gender: "",
-    bloodType: "",
-    allergies: [],
-    medicalConditions: []
-  };
-
-  currentUsers.push(newUser);
-
-  // Omit password from the returned user object
-  const { password: _, ...userWithoutPassword } = newUser;
-
-  return {
-    success: true,
-    user: userWithoutPassword
-  };
+  return normalizeUser(data.user);
 }

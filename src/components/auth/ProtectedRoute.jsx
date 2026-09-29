@@ -2,7 +2,11 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export function ProtectedRoute({ children, allowedRole }) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div role="status" className="flex min-h-screen items-center justify-center text-sm text-text-secondary">Checking your session...</div>;
+  }
 
   // Not logged in → go to login
   if (!isAuthenticated) {
