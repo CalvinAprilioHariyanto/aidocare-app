@@ -10,7 +10,8 @@ async function request(path, options = {}) {
         ...options.headers,
       },
     });
-  } catch {
+  } catch (error) {
+    console.error(`Network error during request to ${path}:`, error);
     throw new Error('Unable to connect to the server. Please try again.');
   }
 
@@ -22,12 +23,11 @@ async function request(path, options = {}) {
   }
 
   if (!response.ok) {
-    throw new Error(data.message || `Request failed (${response.status}).`);
+    const errorMessage = data.error?.message || data.message || `Request failed (${response.status}).`;
+    console.error(`API Error [${response.status}] for ${path}:`, errorMessage);
+    throw new Error(errorMessage);
   }
 
-  // Omit password from the returned user object
-  // eslint-disable-next-line no-unused-vars
-  const { password: _, ...userWithoutPassword } = user;
   return data;
 }
 
@@ -71,9 +71,6 @@ export async function getCurrentUser(token) {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  // Omit password from the returned user object
-  // eslint-disable-next-line no-unused-vars
-  const { password: _, ...userWithoutPassword } = newUser;
   if (!data.user) {
     throw new Error('The server returned an invalid user response.');
   }

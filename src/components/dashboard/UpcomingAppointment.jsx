@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { mockUpcomingAppointment } from '../../data/dashboardData';
+import { useAppointments } from '../../context/AppointmentContext';
 
 function formatAppointmentDate(dateStr) {
   const date = new Date(dateStr + 'T00:00:00');
@@ -41,7 +41,8 @@ function EmptyState() {
 }
 
 export function UpcomingAppointment() {
-  const appointment = mockUpcomingAppointment;
+  const { getUpcoming } = useAppointments();
+  const appointment = getUpcoming()[0]; // Get the first upcoming appointment if any
 
   return (
     <div className="rounded-xl border border-border bg-surface">

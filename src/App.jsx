@@ -4,20 +4,13 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { PatientDashboard } from './pages/PatientDashboard';
+import { FindDoctorPage } from './pages/FindDoctorPage';
+import { DoctorDetailPage } from './pages/DoctorDetailPage';
+import { BookAppointmentPage } from './pages/BookAppointmentPage';
+import { AppointmentsPage } from './pages/AppointmentsPage';
+import { AppointmentDetailPage } from './pages/AppointmentDetailPage';
 import { PlaceholderPage } from './pages/PlaceholderPage';
 
-function DoctorDashboard() {
-  const { user, logout } = useAuth();
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-8">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-text-primary mb-2">Doctor Dashboard — Coming Soon</h1>
-        <p className="text-text-secondary mb-6">Welcome, Dr. {user?.lastName}.</p>
-        <button onClick={logout} className="text-sm text-primary hover:underline">Logout</button>
-      </div>
-    </div>
-  );
-}
 import { HealthProfilePage } from './pages/HealthProfilePage';
 import { RegisterHealthProfilePage } from './pages/RegisterHealthProfilePage';
 import { DoctorDashboardPage } from './pages/DoctorDashboardPage';
@@ -50,7 +43,7 @@ function App() {
         path="/patient"
         element={
           <ProtectedRoute allowedRole="patient">
-            <HealthProfilePage />
+            <PatientDashboard />
           </ProtectedRoute>
         }
       />
@@ -58,7 +51,15 @@ function App() {
         path="/patient/find-doctor"
         element={
           <ProtectedRoute allowedRole="patient">
-            <PlaceholderPage />
+            <FindDoctorPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/patient/doctors/:doctorId"
+        element={
+          <ProtectedRoute allowedRole="patient">
+            <DoctorDetailPage />
           </ProtectedRoute>
         }
       />
@@ -66,7 +67,23 @@ function App() {
         path="/patient/appointments"
         element={
           <ProtectedRoute allowedRole="patient">
-            <PlaceholderPage />
+            <AppointmentsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/patient/appointments/book"
+        element={
+          <ProtectedRoute allowedRole="patient">
+            <BookAppointmentPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/patient/appointments/:appointmentId"
+        element={
+          <ProtectedRoute allowedRole="patient">
+            <AppointmentDetailPage />
           </ProtectedRoute>
         }
       />
@@ -82,7 +99,7 @@ function App() {
         path="/patient/health-profile"
         element={
           <ProtectedRoute allowedRole="patient">
-            <PlaceholderPage />
+            <HealthProfilePage />
           </ProtectedRoute>
         }
       />

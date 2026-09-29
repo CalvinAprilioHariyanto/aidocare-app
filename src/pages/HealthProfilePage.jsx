@@ -188,6 +188,7 @@ export function HealthProfilePage({ registrationMode = false }) {
 		try {
 			localStorage.setItem(`${PROFILE_STORAGE_KEY}:${user?.email || 'patient'}`, JSON.stringify(profileToSave));
 			setSaved(true);
+			navigate('/patient', { replace: true });
 		} catch {
 			setSaved(false);
 		}
@@ -220,31 +221,30 @@ export function HealthProfilePage({ registrationMode = false }) {
 								<h1 className="text-base font-bold text-text-primary sm:text-lg">Set up your health profile</h1>
 							</div>
 						</div>
-						<button type="button" onClick={logout} className="shrink-0 whitespace-nowrap rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold text-text-secondary transition hover:border-primary hover:text-primary sm:px-4">Log out</button>
 					</header>
 				) : (
 					<header className="mb-8 rounded-[2rem] bg-surface p-5 shadow-card sm:p-6 lg:p-8">
-					<div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-						<div className="flex items-center gap-4">
-							<div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-xl font-bold text-white shadow-card">
-								{initials}
+						<div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+							<div className="flex items-center gap-4">
+								<div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-xl font-bold text-white shadow-card">
+									{initials}
+								</div>
+								<div>
+									<p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Aido Care</p>
+									<h1 className="mt-1 text-2xl font-bold text-text-primary sm:text-3xl">
+										{registrationMode ? 'COMPLETE YOUR HEALTH PROFILE' : 'HEALTH PROFILE'}
+									</h1>
+								</div>
 							</div>
-							<div>
-								<p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Aido Care</p>
-								<h1 className="mt-1 text-2xl font-bold text-text-primary sm:text-3xl">
-									{registrationMode ? 'COMPLETE YOUR HEALTH PROFILE' : 'HEALTH PROFILE'}
-								</h1>
+							<div className="flex flex-wrap items-center gap-3">
+								<button type="button" onClick={logout} className="inline-flex items-center justify-center rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-text-primary transition hover:border-primary hover:text-primary">
+									Logout
+								</button>
+								<Button type="submit" form="patient-profile-form">
+									{registrationMode ? 'Save Profile' : 'Save Changes'}
+								</Button>
 							</div>
 						</div>
-						<div className="flex flex-wrap items-center gap-3">
-							<button type="button" onClick={logout} className="inline-flex items-center justify-center rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-text-primary transition hover:border-primary hover:text-primary">
-								Logout
-							</button>
-							<Button type="submit" form="patient-profile-form">
-								{registrationMode ? 'Save Profile' : 'Save Changes'}
-							</Button>
-						</div>
-					</div>
 					</header>
 				)}
 
@@ -390,18 +390,18 @@ export function HealthProfilePage({ registrationMode = false }) {
 						{registrationMode && (
 							<div className="absolute inset-x-3 bottom-3 z-20 space-y-3 bg-background/95 pt-3 backdrop-blur sm:inset-x-6 sm:bottom-5 sm:space-y-4 sm:pt-4 lg:inset-x-8">
 								<div className="flex flex-row items-center justify-between gap-2 sm:gap-4">
-								<div className="min-w-0 max-w-[11rem] max-[380px]:max-w-none">
-									<button type="button" onClick={handleFillLater} className="whitespace-nowrap text-sm font-semibold text-primary transition hover:text-primary-800">Fill later</button>
-									<p className="mt-1 text-[11px] text-text-muted sm:text-xs">You can fill this later in Settings → Profile.</p>
-								</div>
-								<div className="flex shrink-0 items-center gap-2 sm:gap-3">
-									{activeStep > 0 && <button type="button" onClick={() => goToStep(activeStep - 1)} className="rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-text-secondary transition hover:border-primary hover:text-primary sm:px-5 sm:py-3">Back</button>}
-									{activeStep < registrationSteps.length - 1 ? (
-										<button type="button" onClick={() => goToStep(activeStep + 1)} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 sm:px-6 sm:py-3">Continue</button>
-									) : (
-										<button type="submit" className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 sm:px-6 sm:py-3">{saved ? 'Saved' : 'Save profile'}</button>
-									)}
-								</div>
+									<div className="min-w-0 max-w-[11rem] max-[380px]:max-w-none">
+										<button type="button" onClick={handleFillLater} className="whitespace-nowrap text-sm font-semibold text-primary transition hover:text-primary-800">Fill later</button>
+										<p className="mt-1 text-[11px] text-text-muted sm:text-xs">You can fill this later in Settings → Profile.</p>
+									</div>
+									<div className="flex shrink-0 items-center gap-2 sm:gap-3">
+										{activeStep > 0 && <button type="button" onClick={() => goToStep(activeStep - 1)} className="rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-text-secondary transition hover:border-primary hover:text-primary sm:px-5 sm:py-3">Back</button>}
+										{activeStep < registrationSteps.length - 1 ? (
+											<button type="button" onClick={() => goToStep(activeStep + 1)} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 sm:px-6 sm:py-3">Continue</button>
+										) : (
+											<button type="submit" className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 sm:px-6 sm:py-3">{saved ? 'Saved' : 'Save profile'}</button>
+										)}
+									</div>
 								</div>
 							</div>
 						)}
