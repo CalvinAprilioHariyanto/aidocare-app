@@ -84,7 +84,7 @@ export function RegisterPage() {
       return;
     }
 
-    navigate('/patient', { replace: true });
+    navigate('/register-health-profile', { replace: true });
   }
 
   return (

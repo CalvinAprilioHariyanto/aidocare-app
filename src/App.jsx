@@ -3,6 +3,8 @@ import { useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { HealthProfilePage } from './pages/HealthProfilePage';
+import { RegisterHealthProfilePage } from './pages/RegisterHealthProfilePage';
 
 function PatientDashboard() {
   const { user, logout } = useAuth();
@@ -36,13 +38,21 @@ function App() {
       {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route
+        path="/register-health-profile"
+        element={
+          <ProtectedRoute allowedRole="patient">
+            <RegisterHealthProfilePage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Protected routes */}
       <Route
         path="/patient"
         element={
           <ProtectedRoute allowedRole="patient">
-            <PatientDashboard />
+            <HealthProfilePage />
           </ProtectedRoute>
         }
       />
