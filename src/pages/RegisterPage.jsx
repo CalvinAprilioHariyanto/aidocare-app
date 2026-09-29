@@ -50,6 +50,7 @@ export function RegisterPage() {
   });
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -57,7 +58,7 @@ export function RegisterPage() {
     setFormData((current) => ({ ...current, [name]: nextValue }));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     setError('');
 
@@ -77,14 +78,19 @@ export function RegisterPage() {
       return;
     }
 
-    const { firstName, lastName, email, password } = formData;
-    const result = register({ firstName, lastName, email, phone, password });
+    setIsSubmitting(true);
+    const result = await register({ ...formData, phone });
     if (!result.success) {
+      if (result.registrationComplete) {
+        navigate('/login', { replace: true, state: { notice: result.message } });
+        return;
+      }
       setError(result.message);
+      setIsSubmitting(false);
       return;
     }
 
-    navigate('/patient', { replace: true });
+    navigate('/register-health-profile', { replace: true });
   }
 
   return (
@@ -193,7 +199,9 @@ export function RegisterPage() {
 
         {error && <p role="alert" className="text-sm font-medium text-error">{error}</p>}
 
-        <Button type="submit" className="register-submit w-full">Register</Button>
+        <Button type="submit" className="register-submit w-full" disabled={isSubmitting}>
+          {isSubmitting ? 'Creating account...' : 'Register'}
+        </Button>
       </form>
 
       <p className="mt-5 text-center text-sm text-text-muted">

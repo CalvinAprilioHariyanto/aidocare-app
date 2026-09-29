@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { AuthAccountSwitcher } from '../components/auth/AuthAccountSwitcher';
 import { AuthLayout } from '../components/auth/AuthLayout';
@@ -33,27 +33,34 @@ const emailIcon = (
 export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
-  const [notice, setNotice] = useState('');
+  const [notice, setNotice] = useState(location.state?.notice || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function handleChange(event) {
     const { name, value } = event.target;
     setFormData((current) => ({ ...current, [name]: value }));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     setError('');
+    setIsSubmitting(true);
 
-    const result = login(formData.email, formData.password, rememberMe);
-    if (!result.success) {
-      setError(result.message);
-      return;
+    try {
+      const result = await login(formData.email, formData.password, rememberMe);
+      if (!result.success) {
+        setError(result.message);
+        return;
+      }
+
+      navigate(result.user.role === 'doctor' ? '/doctor' : '/patient', { replace: true });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    navigate(result.user.role === 'doctor' ? '/doctor' : '/patient', { replace: true });
   }
 
   return (
@@ -120,7 +127,9 @@ export function LoginPage() {
         {error && <p role="alert" className="text-sm font-medium text-error">{error}</p>}
         {notice && <p role="status" className="text-sm text-text-muted">{notice}</p>}
 
-        <Button type="submit" className="w-full">Log in</Button>
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? 'Logging in...' : 'Log in'}
+        </Button>
       </form>
 
       <p className="mt-5 text-center text-sm text-text-muted">

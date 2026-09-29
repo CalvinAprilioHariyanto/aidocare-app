@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export function AuthCarousel({ slides, currentSlide = 0, onSlideChange }) {
   if (!slides || slides.length === 0) return null;

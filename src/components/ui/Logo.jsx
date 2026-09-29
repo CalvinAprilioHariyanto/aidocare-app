@@ -1,4 +1,4 @@
-import React from 'react';
+
 import logoUrl from '../../assets/images/logo.png';
 
 export function Logo({ className = '' }) {
