@@ -31,6 +31,7 @@ export function login(email, password) {
   }
 
   // Omit password from the returned user object
+  // eslint-disable-next-line no-unused-vars
   const { password: _, ...userWithoutPassword } = user;
 
   return {
@@ -85,6 +86,7 @@ export function register(userData) {
   currentUsers.push(newUser);
 
   // Omit password from the returned user object
+  // eslint-disable-next-line no-unused-vars
   const { password: _, ...userWithoutPassword } = newUser;
 
   return {

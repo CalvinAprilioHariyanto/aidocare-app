@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import waveImage from '../../assets/images/Wave.png';
 
 export function AuthVisualPanel({ 
