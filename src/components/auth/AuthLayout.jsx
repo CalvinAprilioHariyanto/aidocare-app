@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export function AuthLayout({ children, visualPanel, compact = false, topAlignForm = false }) {
   return (

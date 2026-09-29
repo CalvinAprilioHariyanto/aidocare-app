@@ -196,7 +196,8 @@ export function HealthProfilePage({ registrationMode = false }) {
 	function handleFillLater() {
 		try {
 			localStorage.setItem(`${PROFILE_STORAGE_KEY}:${user?.email || 'patient'}`, JSON.stringify(profile));
-		} catch {
+		} catch (error) {
+			console.error('Failed to save profile', error);
 		}
 		navigate('/patient', { replace: true });
 	}

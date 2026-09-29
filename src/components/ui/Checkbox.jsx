@@ -8,7 +8,8 @@ export function Checkbox({
   id,
   ...props 
 }) {
-  const checkboxId = id || React.useId();
+  const generatedId = React.useId();
+  const checkboxId = id || generatedId;
   
   return (
     <div className={`flex items-start gap-3 ${className}`}>
