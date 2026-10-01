@@ -72,7 +72,7 @@ const icons = {
   ),
   arrowRightCircle: (
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="m12 16 4-4-4-4"/>
+      <circle cx="12" cy="12" r="10" /><path d="M8 12h8" /><path d="m12 16 4-4-4-4" />
     </svg>
   ),
 };
@@ -81,7 +81,7 @@ const icons = {
 const statusConfig = {
   completed: { label: 'Completed', dotColor: 'bg-[var(--color-status-completed)]', textColor: 'text-[var(--color-status-completed)]', bgColor: 'bg-slate-50' },
   confirmed: { label: 'Confirmed', dotColor: 'bg-[var(--color-status-confirmed)]', textColor: 'text-[var(--color-status-confirmed)]', bgColor: 'bg-[var(--color-success-light)]' },
-  pending:   { label: 'Pending',   dotColor: 'bg-[var(--color-status-pending)]',   textColor: 'text-[var(--color-status-pending)]',   bgColor: 'bg-[var(--color-warning-light)]' },
+  pending: { label: 'Pending', dotColor: 'bg-[var(--color-status-pending)]', textColor: 'text-[var(--color-status-pending)]', bgColor: 'bg-[var(--color-warning-light)]' },
   cancelled: { label: 'Cancelled', dotColor: 'bg-[var(--color-status-cancelled)]', textColor: 'text-[var(--color-status-cancelled)]', bgColor: 'bg-[var(--color-error-light)]' },
 };
 
@@ -97,9 +97,9 @@ function StatusBadge({ status }) {
 
 /* ─── Risk level indicator ─── */
 const riskConfig = {
-  low:    { color: 'text-[var(--color-success)]',  bg: 'bg-[var(--color-success-light)]' },
-  medium: { color: 'text-[var(--color-warning)]',  bg: 'bg-[var(--color-warning-light)]', border: 'border-[var(--color-warning)]' },
-  high:   { color: 'text-[var(--color-error)]',    bg: 'bg-[var(--color-error-light)]', border: 'border-[var(--color-error)]' },
+  low: { color: 'text-[var(--color-success)]', bg: 'bg-[var(--color-success-light)]' },
+  medium: { color: 'text-[var(--color-warning)]', bg: 'bg-[var(--color-warning-light)]', border: 'border-[var(--color-warning)]' },
+  high: { color: 'text-[var(--color-error)]', bg: 'bg-[var(--color-error-light)]', border: 'border-[var(--color-error)]' },
 };
 
 /* ─── Greeting by time of day ─── */
@@ -117,16 +117,14 @@ function formatDate() {
 /* ─── Compact metric for the top section ─── */
 function MetricCard({ icon, label, value, subValue, accent = false, warning = false }) {
   return (
-    <div className={`group relative flex items-center gap-4 rounded-2xl border p-4 transition-all duration-200 hover:shadow-card ${
-      accent ? 'border-primary-200 bg-gradient-to-br from-primary-50 to-surface' 
-      : warning ? 'border-warning/30 bg-warning-light/30'
-      : 'border-border bg-surface'
-    }`}>
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors ${
-        accent ? 'bg-primary/10 text-primary' 
-        : warning ? 'bg-warning/10 text-warning'
-        : 'bg-surface-muted text-text-muted group-hover:text-primary group-hover:bg-primary-50'
+    <div className={`group relative flex items-center gap-4 rounded-2xl border p-4 transition-all duration-200 hover:shadow-card ${accent ? 'border-primary-200 bg-gradient-to-br from-primary-50 to-surface'
+        : warning ? 'border-warning/30 bg-warning-light/30'
+          : 'border-border bg-surface'
       }`}>
+      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors ${accent ? 'bg-primary/10 text-primary'
+          : warning ? 'bg-warning/10 text-warning'
+            : 'bg-surface-muted text-text-muted group-hover:text-primary group-hover:bg-primary-50'
+        }`}>
         {icon}
       </div>
       <div className="min-w-0">
@@ -153,24 +151,24 @@ function PatientPreviewModal({ patient, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
-        onClick={onClose} 
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
         aria-hidden="true"
       />
-      
+
       {/* Modal Content */}
       <div className="relative w-full max-w-md transform overflow-hidden rounded-[2rem] bg-surface shadow-2xl transition-all">
         {/* Header (Colored by risk/status) */}
         <div className="bg-gradient-to-br from-primary-50 to-surface-muted px-6 pb-6 pt-8">
-          <button 
+          <button
             onClick={onClose}
             className="absolute right-4 top-4 rounded-full p-2 text-text-muted hover:bg-black/5 hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
             aria-label="Close modal"
           >
             {icons.x}
           </button>
-          
+
           <div className="flex items-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-xl font-bold text-white shadow-card">
               {patient.initials || patient.patientInitials}
@@ -225,7 +223,7 @@ function PatientPreviewModal({ patient, onClose }) {
 
 export function DoctorDashboardPage() {
   const { user } = useAuth();
-  
+
   // Local state for interactive elements
   const [appointments, setAppointments] = useState(todayAppointments);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -251,14 +249,14 @@ export function DoctorDashboardPage() {
   // Interactive Action Handlers
   const handleConfirmAppointment = (e, id) => {
     e.stopPropagation();
-    setAppointments(current => 
+    setAppointments(current =>
       current.map(apt => apt.id === id ? { ...apt, status: 'confirmed' } : apt)
     );
   };
 
   const handleCompleteAppointment = (e, id) => {
     e.stopPropagation();
-    setAppointments(current => 
+    setAppointments(current =>
       current.map(apt => apt.id === id ? { ...apt, status: 'completed' } : apt)
     );
   };
@@ -298,10 +296,10 @@ export function DoctorDashboardPage() {
 
         {/* ── Metric Row ── */}
         <section className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          <MetricCard icon={icons.calendar}      label="Today"       value={appointments.length} subValue="appointments" accent />
-          <MetricCard icon={icons.check}         label="Completed"   value={completedCount} />
-          <MetricCard icon={icons.clock}         label="Pending"     value={pendingCount} />
-          <MetricCard icon={icons.alert}         label="Attention"   value={patientsRequiringAttention.length} subValue="patients" warning />
+          <MetricCard icon={icons.calendar} label="Today" value={appointments.length} subValue="appointments" accent />
+          <MetricCard icon={icons.check} label="Completed" value={completedCount} />
+          <MetricCard icon={icons.clock} label="Pending" value={pendingCount} />
+          <MetricCard icon={icons.alert} label="Attention" value={patientsRequiringAttention.length} subValue="patients" warning />
         </section>
 
         {/* ── Two-Column Layout: Appointments (primary) + Sidebar (secondary) ── */}
@@ -309,7 +307,7 @@ export function DoctorDashboardPage() {
 
           {/* ── LEFT: Primary Content (Schedules) ── */}
           <div className="space-y-8">
-            
+
             {/* ── Today's Schedule ── */}
             <section>
               {/* Section header */}
@@ -333,11 +331,10 @@ export function DoctorDashboardPage() {
                     <button
                       key={f.key}
                       onClick={() => setAppointmentFilter(f.key)}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
-                        appointmentFilter === f.key
+                      className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${appointmentFilter === f.key
                           ? 'bg-surface text-primary shadow-sm'
                           : 'text-text-muted hover:text-text-primary'
-                      }`}
+                        }`}
                     >
                       {f.label}
                     </button>
@@ -357,19 +354,17 @@ export function DoctorDashboardPage() {
                   <button
                     key={apt.id}
                     onClick={() => setSelectedAppointment(selectedAppointment?.id === apt.id ? null : apt)}
-                    className={`group w-full text-left rounded-[1.5rem] border p-4 transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/15 ${
-                      selectedAppointment?.id === apt.id
+                    className={`group w-full text-left rounded-[1.5rem] border p-4 transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/15 ${selectedAppointment?.id === apt.id
                         ? 'border-primary-200 bg-primary-50/50 shadow-card'
                         : 'border-border bg-surface hover:border-primary-200 hover:shadow-card'
-                    }`}
+                      }`}
                   >
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
                       {/* Time block */}
-                      <div className={`flex w-full sm:w-16 shrink-0 flex-row sm:flex-col items-center justify-between sm:justify-center rounded-xl py-2 px-3 sm:px-0 text-center transition-colors ${
-                        apt.status === 'completed' ? 'bg-surface-muted text-text-muted' :
-                        apt.status === 'pending' ? 'bg-warning-light text-warning' :
-                        'bg-primary-50 text-primary'
-                      }`}>
+                      <div className={`flex w-full sm:w-16 shrink-0 flex-row sm:flex-col items-center justify-between sm:justify-center rounded-xl py-2 px-3 sm:px-0 text-center transition-colors ${apt.status === 'completed' ? 'bg-surface-muted text-text-muted' :
+                          apt.status === 'pending' ? 'bg-warning-light text-warning' :
+                            'bg-primary-50 text-primary'
+                        }`}>
                         <span className="text-base sm:text-xl font-bold leading-none">{apt.time.split(':')[0]}<span className="text-[12px] sm:text-[10px] font-semibold uppercase opacity-70">:{apt.time.split(':')[1]}</span></span>
                         <span className="text-xs sm:hidden font-medium">{apt.endTime}</span>
                       </div>
@@ -377,11 +372,10 @@ export function DoctorDashboardPage() {
                       {/* Patient info */}
                       <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-bold shadow-sm ${
-                            apt.status === 'completed'
+                          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-bold shadow-sm ${apt.status === 'completed'
                               ? 'bg-slate-100 text-text-muted border border-border'
                               : 'bg-gradient-to-br from-primary-500 to-primary-700 text-white'
-                          }`}>
+                            }`}>
                             {apt.patientInitials}
                           </div>
                           <div className="min-w-0">
@@ -403,17 +397,17 @@ export function DoctorDashboardPage() {
                     {selectedAppointment?.id === apt.id && (
                       <div className="mt-4 border-t border-primary-100 pt-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4" onClick={(e) => e.stopPropagation()}>
                         <div>
-                           <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1">Appointment Details</p>
-                           <p className="text-sm text-text-secondary">{apt.notes || 'No specific notes.'}</p>
-                           <div className="mt-2 text-xs font-medium text-text-muted flex items-center gap-2">
-                             <span>Patient ID: {apt.patientId}</span>
-                             <span>·</span>
-                             <span>End Time: {apt.endTime}</span>
-                           </div>
+                          <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1">Appointment Details</p>
+                          <p className="text-sm text-text-secondary">{apt.notes || 'No specific notes.'}</p>
+                          <div className="mt-2 text-xs font-medium text-text-muted flex items-center gap-2">
+                            <span>Patient ID: {apt.patientId}</span>
+                            <span>·</span>
+                            <span>End Time: {apt.endTime}</span>
+                          </div>
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
                           {apt.status === 'pending' && (
-                            <button 
+                            <button
                               onClick={(e) => handleConfirmAppointment(e, apt.id)}
                               className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700 active:scale-[0.98]"
                             >
@@ -422,13 +416,13 @@ export function DoctorDashboardPage() {
                           )}
                           {apt.status === 'confirmed' && (
                             <>
-                              <button 
+                              <button
                                 onClick={() => setPreviewPatient(apt)}
                                 className="rounded-lg border border-primary-200 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary-100 active:scale-[0.98]"
                               >
                                 View Patient
                               </button>
-                              <button 
+                              <button
                                 onClick={(e) => handleCompleteAppointment(e, apt.id)}
                                 className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700 active:scale-[0.98]"
                               >
@@ -455,7 +449,7 @@ export function DoctorDashboardPage() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-muted text-text-muted">{icons.calendar}</div>
                 <h2 className="text-base font-bold text-text-primary">Upcoming Appointments</h2>
               </div>
-              
+
               <div className="grid gap-4 sm:grid-cols-2">
                 {upcomingAppointments.map((group, i) => (
                   <div key={i} className="rounded-[1.5rem] border border-border bg-surface p-4 shadow-sm">
@@ -479,7 +473,7 @@ export function DoctorDashboardPage() {
 
           {/* ── RIGHT: Secondary Sidebar ── */}
           <aside className="space-y-6">
-            
+
             {/* ── Patients Requiring Attention ── */}
             <div className="rounded-[1.5rem] border border-warning/30 bg-surface shadow-card overflow-hidden">
               <div className="bg-gradient-to-r from-warning-light/50 to-surface p-5 border-b border-warning/10">
@@ -515,7 +509,7 @@ export function DoctorDashboardPage() {
                         {icons.arrowRightCircle}
                       </span>
                     </div>
-                    
+
                     <div className="text-xs text-text-secondary leading-relaxed mb-2">
                       <p><span className="font-medium text-text-muted">Condition:</span> {patient.condition}</p>
                       <p><span className="font-medium text-text-muted">Reason:</span> <span className="text-warning font-medium">{patient.reason}</span></p>
@@ -531,18 +525,17 @@ export function DoctorDashboardPage() {
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { icon: icons.calendar, label: 'Schedule', primary: true, to: '/doctor/schedule' },
-                  { icon: icons.users,    label: 'Patients', to: '/doctor/patients' },
+                  { icon: icons.users, label: 'Patients', to: '/doctor/patients' },
                   { icon: icons.heartPulse, label: 'Records', to: '/doctor/records' },
                   { icon: icons.stethoscope, label: 'Settings', to: '/doctor/settings' },
                 ].map((action, i) => (
                   <Link
                     key={i}
                     to={action.to}
-                    className={`flex flex-col items-center gap-2 rounded-xl p-3 text-center transition-all duration-200 ${
-                      action.primary
+                    className={`flex flex-col items-center gap-2 rounded-xl p-3 text-center transition-all duration-200 ${action.primary
                         ? 'bg-primary text-white shadow-sm hover:bg-primary-800 active:scale-[0.97]'
                         : 'border border-border bg-surface-muted text-text-secondary hover:border-primary hover:text-primary hover:bg-primary-50 active:scale-[0.97]'
-                    }`}
+                      }`}
                   >
                     {action.icon}
                     <span className="text-[11px] font-semibold uppercase tracking-wider">{action.label}</span>
@@ -579,9 +572,9 @@ export function DoctorDashboardPage() {
 
       {/* Patient Preview Modal */}
       {previewPatient && (
-        <PatientPreviewModal 
-          patient={previewPatient} 
-          onClose={() => setPreviewPatient(null)} 
+        <PatientPreviewModal
+          patient={previewPatient}
+          onClose={() => setPreviewPatient(null)}
         />
       )}
     </div>
