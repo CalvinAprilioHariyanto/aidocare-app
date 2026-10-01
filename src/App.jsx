@@ -19,6 +19,7 @@ import { DoctorPatientsPage } from './pages/DoctorPatientsPage';
 import { DoctorRecordsPage } from './pages/DoctorRecordsPage';
 import { DoctorAnalyticsPage } from './pages/DoctorAnalyticsPage';
 import { DoctorNotificationsPage } from './pages/DoctorNotificationsPage';
+import { PatientDetailPage } from './pages/PatientDetailPage';
 import { DoctorSettingsPage } from './pages/DoctorSettingsPage';
 import { DoctorPortalLayout } from './components/layout/DoctorPortalLayout';
 
@@ -125,6 +126,7 @@ function App() {
         <Route path="dashboard" element={<DoctorDashboardPage />} />
         <Route path="schedule" element={<DoctorSchedulePage />} />
         <Route path="patients" element={<DoctorPatientsPage />} />
+        <Route path="patients/:patientId" element={<PatientDetailPage />} />
         <Route path="records" element={<DoctorRecordsPage />} />
         <Route path="analytics" element={<DoctorAnalyticsPage />} />
         <Route path="notifications" element={<DoctorNotificationsPage />} />
