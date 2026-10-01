@@ -22,6 +22,7 @@ Aido Care is a healthcare application that provides patients with access to doct
 - [Application Flow](#application-flow)
 - [API Integration](#api-integration)
 - [Authentication](#authentication)
+- [Testing Accounts](#testing-accounts)
 - [Responsive Design](#responsive-design)
 - [Installation](#installation)
 - [Environment Variables](#environment-variables)
@@ -65,13 +66,13 @@ Traditional healthcare interactions can involve several disconnected processes:
 
 These processes can become difficult to manage when information is spread across different systems.
 
+Aido Care addresses these problems by bringing the main healthcare interactions into a centralized digital platform.
+
 ---
 
 # Solution
 
-Aido Care brings these healthcare interactions into one centralized platform.
-
-The application provides:
+Aido Care provides a centralized healthcare experience for both patients and doctors.
 
 ### For Patients
 
@@ -79,6 +80,7 @@ The application provides:
 - Doctor profiles
 - Appointment booking
 - Appointment history
+- Appointment management
 - Health profile
 - Medical records
 - Notifications
@@ -86,9 +88,10 @@ The application provides:
 
 ### For Doctors
 
-- Dashboard
+- Doctor dashboard
 - Schedule management
 - Patient management
+- Patient details
 - Medical records
 - Prescription management
 - Analytics
@@ -108,6 +111,7 @@ The main objectives of the Aido Care frontend are:
 5. Maintain a consistent visual language across the application.
 6. Provide responsive experiences across different screen sizes.
 7. Integrate securely with the Aido Care backend API.
+8. Provide clear navigation and role-based experiences for patients and doctors.
 
 ---
 
@@ -123,12 +127,13 @@ The main objectives of the Aido Care frontend are:
 - Role-based navigation
 - Logout
 - Persistent authentication state
+- Authenticated user information
 
 ---
 
-## Patient Portal
+# Patient Portal
 
-### Dashboard
+## Dashboard
 
 The patient dashboard provides an overview of the patient's healthcare activity.
 
@@ -144,21 +149,21 @@ Features include:
 
 ---
 
-### Find Doctor
+## Find Doctor
 
 Patients can discover available doctors.
 
 Features include:
 
 - Doctor list
-- Search
+- Doctor search
 - Specialty filtering
 - Doctor information
 - Doctor availability
 
 ---
 
-### Doctor Detail
+## Doctor Detail
 
 Patients can view detailed information about a doctor.
 
@@ -170,20 +175,20 @@ Information includes:
 - Availability
 - Consultation information
 
-Actions:
+Actions include:
 
 - Book appointment
 
 ---
 
-### Appointment Management
+## Appointment Management
 
 Patients can manage their appointments.
 
-Supported actions:
+Supported actions include:
 
 - Create appointment
-- View appointment
+- View appointments
 - View appointment details
 - Reschedule appointment
 - Cancel appointment
@@ -197,7 +202,7 @@ Appointment states include:
 
 ---
 
-### Health Profile
+## Health Profile
 
 Patients can view and manage their health information.
 
@@ -212,7 +217,7 @@ Information may include:
 
 ---
 
-### Medical Records
+## Medical Records
 
 Patients can access their medical history.
 
@@ -221,16 +226,16 @@ Information may include:
 - Consultation date
 - Doctor
 - Diagnosis
-- Notes
+- Medical notes
 - Prescription information
 
 ---
 
-### Notifications
+## Notifications
 
 Patients can view important healthcare notifications.
 
-Examples:
+Examples include:
 
 - Appointment reminders
 - Appointment updates
@@ -258,10 +263,10 @@ Dashboard information includes:
 - Recent activity
 - Upcoming appointments
 
-Example statistics:
+Example dashboard statistics:
 
 ```text
-Appointments       4
-Completed          1
-Pending            1
-Requires Attention 2
+Appointments          4
+Completed             1
+Pending               1
+Requires Attention    2
