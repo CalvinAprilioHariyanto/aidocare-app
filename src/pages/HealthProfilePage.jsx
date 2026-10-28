@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { getPatientProfile, updatePatientProfile } from '../services/patientService';
 
 const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -59,6 +60,33 @@ export function HealthProfilePage({ registrationMode = false }) {
 	const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
 	const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
 	const [activeStep, setActiveStep] = useState(0);
+
+	useEffect(() => {
+		let active = true;
+		getPatientProfile()
+			.then((serverProfile) => {
+				if (active && serverProfile) {
+					setProfile((current) => ({
+						...current,
+						firstName: serverProfile.firstName || current.firstName,
+						lastName: serverProfile.lastName || current.lastName,
+						phone: serverProfile.phone || current.phone,
+						dateOfBirth: serverProfile.dateOfBirth || current.dateOfBirth,
+						gender: serverProfile.gender || current.gender,
+						allergies: Array.isArray(serverProfile.allergies)
+							? serverProfile.allergies.join(', ')
+							: (serverProfile.allergies || current.allergies),
+					}));
+				}
+			})
+			.catch(() => {
+				// Fallback to local storage if server profile is unavailable
+			});
+
+		return () => {
+			active = false;
+		};
+	}, []);
 
 	const initials = useMemo(() => {
 		const first = (profile.firstName || 'P').charAt(0).toUpperCase();
@@ -176,7 +204,7 @@ export function HealthProfilePage({ registrationMode = false }) {
 		return days;
 	}
 
-	function handleSubmit(event) {
+	async function handleSubmit(event) {
 		event.preventDefault();
 		const profileToSave = {
 			...profile,
@@ -184,14 +212,28 @@ export function HealthProfilePage({ registrationMode = false }) {
 				(contact) => contact.name || contact.relationship || contact.phone
 			),
 		};
-		console.log('Saved patient profile:', profileToSave);
+
 		try {
 			localStorage.setItem(`${PROFILE_STORAGE_KEY}:${user?.email || 'patient'}`, JSON.stringify(profileToSave));
-			setSaved(true);
-			navigate('/patient', { replace: true });
 		} catch {
-			setSaved(false);
+			// Local storage fallback
 		}
+
+		try {
+			await updatePatientProfile({
+				firstName: profile.firstName,
+				lastName: profile.lastName,
+				phone: profile.phone,
+				dateOfBirth: profile.dateOfBirth || undefined,
+				gender: profile.gender || undefined,
+				allergies: profile.allergies || undefined,
+			});
+		} catch (error) {
+			console.error('Failed to sync profile with server:', error);
+		}
+
+		setSaved(true);
+		navigate('/patient', { replace: true });
 	}
 
 	function handleFillLater() {

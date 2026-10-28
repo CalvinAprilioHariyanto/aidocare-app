@@ -13,17 +13,19 @@ const statusColors = {
 const filterOptions = ['all', 'confirmed', 'completed', 'cancelled'];
 
 function formatDate(dateStr) {
+  if (!dateStr) return '—';
   return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function formatTime(time) {
+  if (!time) return '—';
   const [h, m] = time.split(':').map(Number);
   const suffix = h >= 12 ? 'PM' : 'AM';
   return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${suffix}`;
 }
 
 export function AppointmentsPage() {
-  const { appointments } = useAppointments();
+  const { appointments, loading, error } = useAppointments();
   const [filter, setFilter] = useState('all');
 
   const filtered = useMemo(() => {
@@ -64,8 +66,21 @@ export function AppointmentsPage() {
           ))}
         </div>
 
-        {/* List */}
-        {filtered.length === 0 ? (
+        {/* Loading / Error / List */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-surface py-16 text-center">
+            <svg className="h-8 w-8 animate-spin text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+              <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
+            </svg>
+            <p className="mt-3 text-sm font-medium text-text-primary">Loading appointments…</p>
+          </div>
+        ) : error ? (
+          <div className="rounded-xl border border-error-200 bg-error-50 p-6 text-center text-sm text-error">
+            <p className="font-semibold">Unable to load appointments</p>
+            <p className="mt-1 text-xs">{error}</p>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-surface py-16 text-center">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-surface-muted">
               <svg viewBox="0 0 24 24" className="h-6 w-6 text-text-muted" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
@@ -82,31 +97,37 @@ export function AppointmentsPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {filtered.map((apt) => (
-              <Link
-                key={apt.id}
-                to={`/patient/appointments/${apt.id}`}
-                className="group flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 transition-all hover:border-primary-200 hover:shadow-card sm:flex-row sm:items-center sm:justify-between sm:p-5"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-50 text-sm font-bold text-primary">
-                    {apt.doctorName?.split(' ').slice(1).map((n) => n[0]).join('') || '?'}
+            {filtered.map((apt) => {
+              const docName = apt.doctorName || apt.doctor?.name || `Dr. ${apt.doctor?.firstName || 'Doctor'} ${apt.doctor?.lastName || ''}`.trim();
+              const spec = apt.specialty || apt.doctor?.specialty || 'General Practice';
+              const initial = docName.split(' ').slice(1).map((n) => n[0]).join('') || 'DR';
+
+              return (
+                <Link
+                  key={apt.id}
+                  to={`/patient/appointments/${apt.id}`}
+                  className="group flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 transition-all hover:border-primary-200 hover:shadow-card sm:flex-row sm:items-center sm:justify-between sm:p-5"
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-50 text-sm font-bold text-primary">
+                      {initial}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">{docName}</p>
+                      <p className="text-xs text-text-muted">{spec}</p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">{apt.doctorName}</p>
-                    <p className="text-xs text-text-muted">{apt.specialty}</p>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-text-muted sm:gap-4">
+                    <span>{formatDate(apt.date)}</span>
+                    <span>{formatTime(apt.time)}</span>
+                    <span>{apt.consultationType || 'General Consultation'}</span>
+                    <span className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold capitalize ${statusColors[apt.status] || 'bg-surface-muted text-text-muted'}`}>
+                      {apt.status}
+                    </span>
                   </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-text-muted sm:gap-4">
-                  <span>{formatDate(apt.date)}</span>
-                  <span>{formatTime(apt.time)}</span>
-                  <span>{apt.consultationType}</span>
-                  <span className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold capitalize ${statusColors[apt.status] || 'bg-surface-muted text-text-muted'}`}>
-                    {apt.status}
-                  </span>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>

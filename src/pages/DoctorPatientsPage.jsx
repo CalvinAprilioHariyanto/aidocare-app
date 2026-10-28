@@ -40,8 +40,6 @@ export function DoctorPatientsPage() {
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError(null);
     listPatients()
       .then(data => { if (active) setPatients(data.patients || []); })
       .catch(e => { if (active) setError(e.message); })

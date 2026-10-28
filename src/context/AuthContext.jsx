@@ -98,7 +98,8 @@ export function AuthProvider({ children }) {
       return { success: false, message: error.message };
     }
 
-    const loginResult = await login(userData.email, userData.password, true);
+    const email = typeof userData.email === 'string' ? userData.email.trim() : userData.email;
+    const loginResult = await login(email, userData.password, true);
     if (!loginResult.success) {
       return {
         ...loginResult,

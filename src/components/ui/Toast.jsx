@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 // ── Toast Context & Hook ────────────────────────────────────────
 let _addToast = null;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function toast(message, type = 'success') {
   if (_addToast) _addToast({ message, type, id: Date.now() + Math.random() });
 }

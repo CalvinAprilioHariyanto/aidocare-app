@@ -47,11 +47,21 @@ export function LoginPage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (isSubmitting) return;
+
+    const email = formData.email.trim();
+    const password = formData.password;
+
+    if (!email || !password) {
+      setError('Please enter both email and password.');
+      return;
+    }
+
     setError('');
     setIsSubmitting(true);
 
     try {
-      const result = await login(formData.email, formData.password, rememberMe);
+      const result = await login(email, password, rememberMe);
       if (!result.success) {
         setError(result.message);
         return;
@@ -122,6 +132,37 @@ export function LoginPage() {
           >
             Reset Password
           </button>
+        </div>
+
+        <div className="rounded-xl border border-border bg-surface-muted/60 p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">Test Accounts</span>
+            <span className="text-[11px] text-text-muted">Click to fill</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setFormData({ email: 'sarah.wijaya@test.com', password: 'SarahTest123!' });
+                setError('');
+              }}
+              className="flex flex-col items-start rounded-lg border border-border bg-surface p-2 text-left transition-colors hover:border-primary hover:bg-primary-50/50"
+            >
+              <span className="text-xs font-semibold text-text-primary">Patient</span>
+              <span className="text-[11px] text-text-muted truncate w-full">sarah.wijaya@test.com</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFormData({ email: 'doctor.one@example.test', password: 'DoctorTest123!' });
+                setError('');
+              }}
+              className="flex flex-col items-start rounded-lg border border-border bg-surface p-2 text-left transition-colors hover:border-primary hover:bg-primary-50/50"
+            >
+              <span className="text-xs font-semibold text-text-primary">Doctor</span>
+              <span className="text-[11px] text-text-muted truncate w-full">doctor.one@example.test</span>
+            </button>
+          </div>
         </div>
 
         {error && <p role="alert" className="text-sm font-medium text-error">{error}</p>}

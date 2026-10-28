@@ -1,16 +1,77 @@
-# React + Vite
+# Aido Care — Web Application Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive healthcare consultation and management web application built for patients and doctors, featuring real backend full-stack integration for appointments, doctor directory, and clinical records.
 
-Currently, two official plugins are available:
+- **Live Frontend:** [https://calvinapriliohariyanto.github.io/aidocare-app/](https://calvinapriliohariyanto.github.io/aidocare-app/)
+- **Live Backend API:** [https://aidocare-backend-production.up.railway.app](https://aidocare-backend-production.up.railway.app/)
+- **Repository:** [https://github.com/CalvinAprilioHariyanto/aidocare-app](https://github.com/CalvinAprilioHariyanto/aidocare-app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 👥 Team Members
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Calvin Aprilio Hariyanto** (`calvinuphstudent@gmail.com`)
+- **SirImro / Glenn** (`rawglennvids@gmail.com`)
+- **Euro William Wijaya** (`eurowijaya123@gmail.com`)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Technology Stack
+
+- **Framework / Runtime:** React 19, Vite 8
+- **Styling:** Tailwind CSS v4
+- **Routing:** React Router v7
+- **Language:** JavaScript (ES modules)
+- **Quality & Linting:** ESLint 10
+
+---
+
+## 🚀 Key Features & Full-Stack Integration
+
+- **Authentication & Roles:** JWT authentication with role-based routing (`/patient` and `/doctor`), auto-attaching bearer tokens to API requests.
+- **Doctor Directory (`/patient/find-doctor` & `/patient/doctors/:id`):** Connected to backend `GET /api/doctors` and `GET /api/doctors/:id`, displaying real doctor profiles, specialties, bios, and computed working slot availability with loading, empty, and error states.
+- **Appointments (`/patient/appointments` & `/patient/appointments/book`):** Fully integrated with backend `POST /api/appointments`, `GET /api/appointments`, `GET /api/appointments/:id`, and `PATCH /api/appointments/:id`. Backed by PostgreSQL transactions with concurrency/conflict prevention, past date rejection, cancellation, and rescheduling.
+- **Doctor Working Schedule (`/doctor/schedule`):** Connected to `GET /api/doctor/schedules` and `GET /api/appointments`, displaying registered weekly working hours and scheduled consultations in real time.
+- **Medical Records & Prescriptions (`/doctor/patients/:id` & `/doctor/records`):** Connected to `GET /api/patients/:id/records`, `POST /api/patients/:id/records`, and `PATCH /api/patients/:id/records/:recordId`, persisting clinical records, diagnoses, and prescriptions directly into PostgreSQL.
+- **Doctor Account & Patient Health Profile:** Settings pages connected to `/api/doctor/account` and `/api/patient/profile`.
+
+---
+
+## ⚙️ Prerequisites & Setup
+
+### Prerequisites
+- Node.js (v18 or higher recommended)
+- npm (v9 or higher)
+
+### Installation
+```bash
+git clone https://github.com/CalvinAprilioHariyanto/aidocare-app.git
+cd aidocare-app
+npm install
+```
+
+### Environment Configuration
+Create a `.env` file in the root directory based on `.env.example`:
+```env
+# Point to local backend during development
+VITE_API_URL=http://localhost:3000
+
+# Or point to production Railway backend:
+# VITE_API_URL=https://aidocare-backend-production.up.railway.app
+```
+
+---
+
+## 📜 Available Scripts
+
+- `npm run dev`: Starts the local development server at `http://localhost:5173`.
+- `npm run build`: Bundles the application for production inside the `dist/` folder.
+- `npm run preview`: Previews the production build locally.
+- `npm run lint`: Runs ESLint to check for code style and syntax issues across all source files.
+
+---
+
+## 🌐 Deployment
+
+The frontend is deployed to GitHub Pages with the base URL `/aidocare-app/`.
+Production builds are generated via Vite and pushed to the `gh-pages` deployment target.

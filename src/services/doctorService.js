@@ -1,246 +1,221 @@
-import { patientsRequiringAttention } from '../data/doctorDashboard';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3000' : 'https://aidocare-backend-production.up.railway.app');
 
-/**
- * Doctor Service - FRONTEND ONLY MOCK
- * Simulates API calls using localStorage for Medical Records and Prescriptions.
- * Reads mock data for Patients.
- */
-
-// --- Helpers to simulate network delay ---
-const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
-
-function generateId() {
-  return Math.random().toString(36).substring(2, 9);
+function getAuthToken() {
+  return localStorage.getItem('aido_token') || sessionStorage.getItem('aido_token');
 }
 
-// --- LocalStorage keys ---
-const RECORDS_KEY = 'aido_mock_medical_records';
-const PRESCRIPTIONS_KEY = 'aido_mock_prescriptions';
+async function request(path, options = {}) {
+  const token = getAuthToken();
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
 
-function getStorage(key) {
-  try {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
   }
+
+  let response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch (error) {
+    console.error(`Network error during request to ${path}:`, error);
+    throw new Error('Unable to connect to the server. Please check your connection.', { cause: error });
+  }
+
+  let data = {};
+  try {
+    data = await response.json();
+  } catch {
+    // empty response
+  }
+
+  if (!response.ok) {
+    const message = data.error?.message || data.message || `Request failed with status ${response.status}.`;
+    throw new Error(message);
+  }
+
+  return data;
 }
 
-function setStorage(key, data) {
-  localStorage.setItem(key, JSON.stringify(data));
+// ── Doctor Account ─────────────────────────────────────────────
+
+export async function getDoctorAccount() {
+  const data = await request('/api/doctor/account');
+  return data.doctor;
 }
+
+export async function updateDoctorAccount(payload) {
+  const data = await request('/api/doctor/account', {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+  return data.doctor;
+}
+
+export async function getDoctorSchedules() {
+  const data = await request('/api/doctor/schedules');
+  return data.schedules || [];
+}
+
+// ── Doctor Directory ───────────────────────────────────────────
+
+export async function listDoctors({ search = '', specialty = '' } = {}) {
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  if (specialty) params.append('specialty', specialty);
+
+  const queryStr = params.toString() ? `?${params.toString()}` : '';
+  const data = await request(`/api/doctors${queryStr}`);
+  return data.doctors || [];
+}
+
+export async function getDoctor(id) {
+  const data = await request(`/api/doctors/${id}`);
+  return data.doctor;
+}
+
+export const getDoctorById = getDoctor;
 
 // ── Patients ──────────────────────────────────────────────────
 
 export async function listPatients() {
-  await delay();
-  // Map mock dashboard patients to the format expected by DoctorPatientsPage
-  const patients = patientsRequiringAttention.map(p => ({
-    id: p.id,
-    firstName: p.name.split(' ')[0],
-    lastName: p.name.split(' ').slice(1).join(' '),
-    user: { email: `${p.name.split(' ')[0].toLowerCase()}@example.com` },
-    dateOfBirth: new Date(new Date().getFullYear() - p.age, 0, 1).toISOString(),
-    gender: p.gender,
-    allergies: p.allergy !== 'None reported' ? [p.allergy] : [],
-    phone: '555-0198',
-    lastVisit: new Date().toISOString(), // Mock recent visit
-  }));
-  return { patients };
+  const data = await request('/api/patients');
+  return { patients: data.patients || [] };
 }
 
 export async function getPatient(patientId) {
-  await delay();
-  const res = await listPatients();
-  const patient = res.patients.find(p => p.id === patientId);
-  if (!patient) throw new Error('Patient not found');
-  
-  // Attach some mock appointments for the detail page
-  patient.appointments = [
-    {
-      id: generateId(),
-      appointmentDate: new Date().toISOString(),
-      startTime: new Date().toISOString(),
-      status: 'COMPLETED',
-      queueNumber: 12
-    }
-  ];
-  return { patient };
+  const data = await request(`/api/patients/${patientId}`);
+  return { patient: data.patient };
 }
 
 // ── Medical Records ───────────────────────────────────────────
 
 export async function listMedicalRecords(patientId, { includeArchived = false } = {}) {
-  await delay();
-  let records = getStorage(RECORDS_KEY);
-  
-  if (patientId) {
-    records = records.filter(r => r.patientId === patientId);
-  }
-
-  if (!includeArchived) {
-    records = records.filter(r => r.status === 'ACTIVE');
-  }
-
-  // Also include prescriptions for each record
-  const prescriptions = getStorage(PRESCRIPTIONS_KEY);
-  records = records.map(r => ({
-    ...r,
-    prescriptions: prescriptions.filter(p => p.medicalRecordId === r.id)
-  }));
-
-  // Sort by createdAt descending
-  records.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  
-  return { records };
+  const queryStr = includeArchived ? '?includeArchived=true' : '';
+  const data = await request(`/api/patients/${patientId}/records${queryStr}`);
+  return { records: data.records || [] };
 }
 
 export async function getMedicalRecord(patientId, recordId) {
-  await delay();
-  const records = getStorage(RECORDS_KEY);
-  const record = records.find(r => r.id === recordId && r.patientId === patientId);
-  if (!record) throw new Error('Medical record not found');
-  
-  const prescriptions = getStorage(PRESCRIPTIONS_KEY).filter(p => p.medicalRecordId === record.id);
-  record.prescriptions = prescriptions;
-
-  return { record };
+  const data = await request(`/api/patients/${patientId}/records/${recordId}`);
+  return { record: data.record };
 }
 
 export async function createMedicalRecord(patientId, data) {
-  await delay();
-  const records = getStorage(RECORDS_KEY);
-  
-  const newRecord = {
-    id: `MR-${generateId()}`,
-    patientId,
-    ...data,
-    status: 'ACTIVE',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  
-  records.push(newRecord);
-  setStorage(RECORDS_KEY, records);
-  return { record: newRecord };
+  const res = await request(`/api/patients/${patientId}/records`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return { record: res.record };
 }
 
 export async function updateMedicalRecord(patientId, recordId, data) {
-  await delay();
-  const records = getStorage(RECORDS_KEY);
-  const idx = records.findIndex(r => r.id === recordId && r.patientId === patientId);
-  
-  if (idx === -1) throw new Error('Medical record not found');
-  
-  records[idx] = {
-    ...records[idx],
-    ...data,
-    updatedAt: new Date().toISOString(),
-  };
-  
-  setStorage(RECORDS_KEY, records);
-  return { record: records[idx] };
+  const res = await request(`/api/patients/${patientId}/records/${recordId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+  return { record: res.record };
 }
 
 export async function archiveMedicalRecord(patientId, recordId) {
-  await delay();
-  const records = getStorage(RECORDS_KEY);
-  const idx = records.findIndex(r => r.id === recordId && r.patientId === patientId);
-  
-  if (idx === -1) throw new Error('Medical record not found');
-  
-  records[idx].status = 'ARCHIVED';
-  records[idx].updatedAt = new Date().toISOString();
-  
-  setStorage(RECORDS_KEY, records);
-  return { record: records[idx] };
+  const res = await request(`/api/patients/${patientId}/records/${recordId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status: 'ARCHIVED' }),
+  });
+  return { record: res.record };
 }
 
 // ── Prescriptions ─────────────────────────────────────────────
 
 export async function listPrescriptions(patientId) {
-  await delay();
-  let prescriptions = getStorage(PRESCRIPTIONS_KEY);
-  
-  if (patientId) {
-    prescriptions = prescriptions.filter(p => p.patientId === patientId);
+  const { records } = await listMedicalRecords(patientId, { includeArchived: true });
+  const allPrescriptions = [];
+
+  for (const record of records) {
+    if (Array.isArray(record.prescriptions)) {
+      for (const rx of record.prescriptions) {
+        allPrescriptions.push({
+          ...rx,
+          medicalRecordId: record.id,
+          medicalRecord: { id: record.id, title: record.title },
+        });
+      }
+    }
   }
 
-  // Attach medical record mock info if exists
-  const records = getStorage(RECORDS_KEY);
-  prescriptions = prescriptions.map(p => {
-    const mr = records.find(r => r.id === p.medicalRecordId);
-    return {
-      ...p,
-      medicalRecord: mr ? { id: mr.id, title: mr.title } : null
-    };
-  });
-
-  prescriptions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  
-  return { prescriptions };
+  return { prescriptions: allPrescriptions };
 }
 
 export async function getPrescription(patientId, prescriptionId) {
-  await delay();
-  const prescriptions = getStorage(PRESCRIPTIONS_KEY);
-  const prescription = prescriptions.find(p => p.id === prescriptionId && p.patientId === patientId);
-  if (!prescription) throw new Error('Prescription not found');
-  
-  return { prescription };
+  const { prescriptions } = await listPrescriptions(patientId);
+  const found = prescriptions.find((p) => p.id === prescriptionId);
+  if (!found) throw new Error('Prescription not found');
+  return { prescription: found };
 }
 
 export async function createPrescription(patientId, data) {
-  await delay();
-  const prescriptions = getStorage(PRESCRIPTIONS_KEY);
-  
-  const newPrescription = {
-    id: `RX-${generateId()}`,
-    patientId,
+  // If target medicalRecordId is provided, update that record's prescriptions
+  let targetRecordId = data.medicalRecordId;
+
+  if (targetRecordId) {
+    const { record } = await getMedicalRecord(patientId, targetRecordId);
+    const existingRx = record.prescriptions || [];
+    const newRx = {
+      id: `rx-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      ...data,
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString(),
+    };
+    const updated = await updateMedicalRecord(patientId, targetRecordId, {
+      prescriptions: [...existingRx, newRx],
+    });
+    return { prescription: newRx, record: updated.record };
+  }
+
+  // Otherwise, create a new medical record for this prescription
+  const newRx = {
+    id: `rx-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
     ...data,
     status: 'ACTIVE',
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
   };
-  
-  prescriptions.push(newPrescription);
-  setStorage(PRESCRIPTIONS_KEY, prescriptions);
-  return { prescription: newPrescription };
+
+  const { record } = await createMedicalRecord(patientId, {
+    title: `Prescription: ${data.medication || 'Medication'}`,
+    content: `Prescription issued: ${data.medication || ''} (${data.dosage || ''}, ${data.frequency || ''}).`,
+    prescriptions: [newRx],
+  });
+
+  return { prescription: newRx, record };
 }
 
 export async function updatePrescription(patientId, prescriptionId, data) {
-  await delay();
-  const prescriptions = getStorage(PRESCRIPTIONS_KEY);
-  const idx = prescriptions.findIndex(p => p.id === prescriptionId && p.patientId === patientId);
-  
-  if (idx === -1) throw new Error('Prescription not found');
-  
-  prescriptions[idx] = {
-    ...prescriptions[idx],
-    ...data,
-    updatedAt: new Date().toISOString(),
-  };
-  
-  setStorage(PRESCRIPTIONS_KEY, prescriptions);
-  return { prescription: prescriptions[idx] };
+  const { records } = await listMedicalRecords(patientId, { includeArchived: true });
+  const parentRecord = records.find((r) => (r.prescriptions || []).some((p) => p.id === prescriptionId));
+
+  if (!parentRecord) throw new Error('Prescription not found');
+
+  const updatedRxList = parentRecord.prescriptions.map((p) =>
+    p.id === prescriptionId ? { ...p, ...data, updatedAt: new Date().toISOString() } : p
+  );
+
+  const updatedRecord = await updateMedicalRecord(patientId, parentRecord.id, {
+    prescriptions: updatedRxList,
+  });
+
+  const updatedRx = updatedRecord.record.prescriptions.find((p) => p.id === prescriptionId);
+  return { prescription: updatedRx };
 }
 
 export async function discontinuePrescription(patientId, prescriptionId) {
-  await delay();
-  const prescriptions = getStorage(PRESCRIPTIONS_KEY);
-  const idx = prescriptions.findIndex(p => p.id === prescriptionId && p.patientId === patientId);
-  
-  if (idx === -1) throw new Error('Prescription not found');
-  
-  prescriptions[idx].status = 'DISCONTINUED';
-  prescriptions[idx].updatedAt = new Date().toISOString();
-  
-  setStorage(PRESCRIPTIONS_KEY, prescriptions);
-  return { prescription: prescriptions[idx] };
+  return updatePrescription(patientId, prescriptionId, { status: 'DISCONTINUED' });
 }
 
-export async function listPrescriptionsByRecord(recordId) {
-  await delay();
-  let prescriptions = getStorage(PRESCRIPTIONS_KEY).filter(p => p.medicalRecordId === recordId);
-  return { prescriptions };
+export async function listPrescriptionsByRecord(patientId, recordId) {
+  const { record } = await getMedicalRecord(patientId, recordId);
+  return { prescriptions: record.prescriptions || [] };
 }
