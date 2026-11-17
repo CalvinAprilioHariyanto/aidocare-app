@@ -79,8 +79,8 @@ export function UpcomingAppointment() {
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-text-primary truncate">{appointment.doctorName}</p>
-                <p className="text-xs text-text-muted">{appointment.specialty}</p>
+                <p className="text-sm font-semibold text-text-primary truncate">{appointment.doctorName || appointment.doctor?.name || 'Doctor'}</p>
+                <p className="text-xs text-text-muted">{appointment.specialty || appointment.doctor?.specialty || 'General Practice'}</p>
               </div>
             </div>
 
@@ -91,7 +91,7 @@ export function UpcomingAppointment() {
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
-                {appointment.location}
+                {appointment.location || 'Aido Care Clinic'}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

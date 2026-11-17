@@ -1,6 +1,7 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { DashboardLayout } from '../components/dashboard/DashboardLayout';
-import { getDoctorById } from '../data/doctors';
+import { getDoctor } from '../services/doctorService';
 
 function InfoRow({ icon, label, value }) {
   return (
@@ -16,23 +17,59 @@ function InfoRow({ icon, label, value }) {
 
 export function DoctorDetailPage() {
   const { doctorId } = useParams();
-  const doctor = getDoctorById(doctorId);
+  const [doctor, setDoctor] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!doctor) {
+  useEffect(() => {
+    let active = true;
+    getDoctor(doctorId)
+      .then((data) => {
+        if (active) setDoctor(data);
+      })
+      .catch((err) => {
+        if (active) setError(err.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [doctorId]);
+
+  if (loading) {
     return (
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <p className="text-lg font-semibold text-text-primary">Doctor not found</p>
+          <svg className="h-8 w-8 animate-spin text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+            <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
+          </svg>
+          <p className="mt-3 text-sm font-medium text-text-primary">Loading doctor profile…</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error || !doctor) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <p className="text-lg font-semibold text-text-primary">{error || 'Doctor not found'}</p>
           <Link to="/patient/find-doctor" className="mt-4 text-sm font-medium text-primary hover:underline">← Back to search</Link>
         </div>
       </DashboardLayout>
     );
   }
 
-  const availableDays = Object.keys(doctor.availability)
+  const availableDays = Object.keys(doctor.availability || {})
     .map(Number)
     .map((d) => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d])
-    .join(', ');
+    .join(', ') || 'Monday to Friday';
+
+  const initials = `${doctor.firstName?.[0] || 'D'}${doctor.lastName?.[0] || 'R'}`;
 
   return (
     <DashboardLayout>
@@ -48,7 +85,7 @@ export function DoctorDetailPage() {
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-xl font-bold text-white shadow-card">
-                {doctor.firstName[0]}{doctor.lastName[0]}
+                {initials}
               </div>
               <div>
                 <h1 className="text-xl font-bold text-text-primary sm:text-2xl">Dr. {doctor.firstName} {doctor.lastName}</h1>
@@ -56,9 +93,9 @@ export function DoctorDetailPage() {
                 <div className="mt-1.5 flex items-center gap-2">
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-warning">
                     <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 fill-current"><path d="M10 1.608l2.117 6.515h6.851l-5.543 4.026 2.117 6.515L10 14.638l-5.542 4.026 2.117-6.515L1.032 8.123h6.851z" /></svg>
-                    {doctor.rating}
+                    {doctor.rating || 4.9}
                   </span>
-                  <span className="text-xs text-text-muted">({doctor.reviewCount} reviews)</span>
+                  <span className="text-xs text-text-muted">({doctor.reviewCount || 90} reviews)</span>
                 </div>
               </div>
             </div>
@@ -78,7 +115,7 @@ export function DoctorDetailPage() {
           <div className="flex flex-col gap-6 lg:col-span-3">
             <div className="rounded-xl border border-border bg-surface p-5 sm:p-6">
               <h2 className="mb-4 text-base font-semibold text-text-primary">About</h2>
-              <p className="text-sm leading-relaxed text-text-secondary">{doctor.bio}</p>
+              <p className="text-sm leading-relaxed text-text-secondary">{doctor.bio || 'General practitioner providing comprehensive healthcare.'}</p>
             </div>
             <div className="rounded-xl border border-border bg-surface p-5 sm:p-6">
               <h2 className="mb-4 text-base font-semibold text-text-primary">Details</h2>
@@ -86,22 +123,22 @@ export function DoctorDetailPage() {
                 <InfoRow
                   icon={<svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5" /></svg>}
                   label="Education"
-                  value={doctor.education}
+                  value={doctor.education || 'Faculty of Medicine'}
                 />
                 <InfoRow
                   icon={<svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>}
                   label="Experience"
-                  value={`${doctor.experience} years`}
+                  value={`${doctor.experience || 8} years`}
                 />
                 <InfoRow
                   icon={<svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z" /><circle cx="12" cy="10" r="3" /></svg>}
                   label="Location"
-                  value={doctor.location}
+                  value={doctor.location || 'Aido Care Clinic'}
                 />
                 <InfoRow
                   icon={<svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>}
                   label="Consultation Fee"
-                  value={`Rp ${doctor.consultationFee.toLocaleString('id-ID')}`}
+                  value={`Rp ${(doctor.consultationFee || 150000).toLocaleString('id-ID')}`}
                 />
               </div>
             </div>
@@ -116,7 +153,7 @@ export function DoctorDetailPage() {
             <div className="rounded-xl border border-border bg-surface p-5 sm:p-6">
               <h2 className="mb-4 text-base font-semibold text-text-primary">Languages</h2>
               <div className="flex flex-wrap gap-2">
-                {doctor.languages.map((lang) => (
+                {(doctor.languages || ['English', 'Indonesian']).map((lang) => (
                   <span key={lang} className="rounded-lg bg-primary-50 px-3 py-1.5 text-xs font-medium text-primary">{lang}</span>
                 ))}
               </div>

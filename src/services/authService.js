@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://aidocare-backend-production.up.railway.app';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3000' : 'https://aidocare-backend-production.up.railway.app');
 
 async function request(path, options = {}) {
   let response;
@@ -12,7 +12,7 @@ async function request(path, options = {}) {
     });
   } catch (error) {
     console.error(`Network error during request to ${path}:`, error);
-    throw new Error('Unable to connect to the server. Please try again.');
+    throw new Error('Unable to connect to the server. Please try again.', { cause: error });
   }
 
   let data = {};
@@ -39,9 +39,10 @@ export function normalizeUser(user) {
 }
 
 export async function login(email, password) {
+  const normalizedEmail = typeof email === 'string' ? email.trim() : email;
   const data = await request('/api/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email: normalizedEmail, password }),
   });
 
   if (!data.token || !data.user) {

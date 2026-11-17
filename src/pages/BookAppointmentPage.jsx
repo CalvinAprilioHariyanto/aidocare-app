@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { DashboardLayout } from '../components/dashboard/DashboardLayout';
-import { getDoctorById, consultationTypes } from '../data/doctors';
+import { consultationTypes } from '../data/doctors';
+import { getDoctor } from '../services/doctorService';
 import { useAppointments } from '../context/AppointmentContext';
 
 const STEPS = ['Date & Time', 'Consultation Type', 'Review', 'Confirmed'];
@@ -45,11 +46,12 @@ function getAvailableDates(doctor, count = 14) {
   const dates = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const availability = doctor.availability || {};
   for (let i = 1; dates.length < count && i < 60; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     const dayOfWeek = d.getDay();
-    if (doctor.availability[dayOfWeek]) {
+    if (availability[dayOfWeek] && availability[dayOfWeek].length > 0) {
       const y = d.getFullYear();
       const mo = String(d.getMonth() + 1).padStart(2, '0');
       const da = String(d.getDate()).padStart(2, '0');
@@ -61,11 +63,11 @@ function getAvailableDates(doctor, count = 14) {
 
 export function BookAppointmentPage() {
   const [params] = useSearchParams();
-  const navigate = useNavigate();
   const { bookAppointment } = useAppointments();
 
   const doctorId = params.get('doctor');
-  const doctor = getDoctorById(doctorId);
+  const [doctor, setDoctor] = useState(null);
+  const [loadingDoctor, setLoadingDoctor] = useState(Boolean(doctorId));
 
   const [step, setStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -75,12 +77,46 @@ export function BookAppointmentPage() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    let active = true;
+    if (!doctorId) return;
+
+    getDoctor(doctorId)
+      .then((data) => {
+        if (active) setDoctor(data);
+      })
+      .catch(() => {
+        if (active) setDoctor(null);
+      })
+      .finally(() => {
+        if (active) setLoadingDoctor(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [doctorId]);
+
   const availableDates = useMemo(() => (doctor ? getAvailableDates(doctor) : []), [doctor]);
 
   const timeSlots = useMemo(() => {
     if (!doctor || !selectedDate) return [];
-    return doctor.availability[selectedDate.dayOfWeek] || [];
+    return (doctor.availability && doctor.availability[selectedDate.dayOfWeek]) || [];
   }, [doctor, selectedDate]);
+
+  if (loadingDoctor) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <svg className="h-8 w-8 animate-spin text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+            <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
+          </svg>
+          <p className="mt-3 text-sm font-medium text-text-primary">Loading doctor details…</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!doctor) {
     return (
@@ -93,13 +129,13 @@ export function BookAppointmentPage() {
     );
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
     if (isSubmitting) return;
     setIsSubmitting(true);
     setError('');
 
     try {
-      const apt = bookAppointment({
+      const apt = await bookAppointment({
         doctorId: doctor.id,
         doctorName: `Dr. ${doctor.firstName} ${doctor.lastName}`,
         specialty: doctor.specialty,

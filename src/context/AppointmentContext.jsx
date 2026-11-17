@@ -1,91 +1,114 @@
-import { createContext, useContext, useState, useCallback } from 'react';
-
-const APPOINTMENTS_KEY = 'aido_appointments';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import * as appointmentService from '../services/appointmentService';
 
 const AppointmentContext = createContext(null);
 
-function readStoredAppointments() {
+function hasToken() {
   try {
-    const stored = localStorage.getItem(APPOINTMENTS_KEY);
-    return stored ? JSON.parse(stored) : [];
+    return Boolean(localStorage.getItem('aido_token') || sessionStorage.getItem('aido_token'));
   } catch {
-    return [];
+    return false;
   }
-}
-
-function persistAppointments(appointments) {
-  try {
-    localStorage.setItem(APPOINTMENTS_KEY, JSON.stringify(appointments));
-  } catch {
-    // Storage unavailable — keep in-memory state only.
-  }
-}
-
-let nextId = Date.now();
-function generateId() {
-  nextId += 1;
-  return `APT-${nextId}`;
 }
 
 export function AppointmentProvider({ children }) {
-  const [appointments, setAppointments] = useState(readStoredAppointments);
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(hasToken);
+  const [error, setError] = useState(null);
 
-  const update = useCallback((updater) => {
-    setAppointments((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
-      persistAppointments(next);
-      return next;
-    });
-  }, []);
-
-  const bookAppointment = useCallback((details) => {
-    const isConflict = appointments.some(apt => 
-      apt.doctorId === details.doctorId &&
-      apt.date === details.date &&
-      apt.time === details.time &&
-      apt.status !== 'cancelled'
-    );
-
-    if (isConflict) {
-      throw new Error("This time slot is already booked. Please choose another time.");
+  const reloadAppointments = useCallback(async () => {
+    const token = localStorage.getItem('aido_token') || sessionStorage.getItem('aido_token');
+    if (!token) {
+      setAppointments([]);
+      setLoading(false);
+      return;
     }
 
-    const appointment = {
-      id: generateId(),
-      ...details,
-      status: 'confirmed',
-      createdAt: new Date().toISOString(),
+    try {
+      setError(null);
+      const list = await appointmentService.listAppointments();
+      setAppointments(list);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    const token = localStorage.getItem('aido_token') || sessionStorage.getItem('aido_token');
+    if (!token) return;
+
+    appointmentService
+      .listAppointments()
+      .then((list) => {
+        if (active) setAppointments(list);
+      })
+      .catch((err) => {
+        if (active) setError(err.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
     };
-    update((prev) => [appointment, ...prev]);
-    return appointment;
-  }, [update, appointments]);
+  }, []);
 
-  const rescheduleAppointment = useCallback((id, newDate, newTime) => {
-    update((prev) =>
-      prev.map((apt) =>
-        apt.id === id ? { ...apt, date: newDate, time: newTime, status: 'confirmed' } : apt
-      )
-    );
-  }, [update]);
+  const bookAppointment = useCallback(async (details) => {
+    const payload = {
+      doctorId: details.doctorId,
+      appointmentDate: details.date || details.appointmentDate,
+      startTime: details.time || details.startTime,
+      type: details.type,
+    };
+    const created = await appointmentService.bookAppointment(payload);
+    setAppointments((prev) => [created, ...prev.filter((a) => a.id !== created.id)]);
+    return created;
+  }, []);
 
-  const cancelAppointment = useCallback((id) => {
-    update((prev) =>
-      prev.map((apt) =>
-        apt.id === id ? { ...apt, status: 'cancelled' } : apt
-      )
+  const rescheduleAppointment = useCallback(async (id, newDate, newTime) => {
+    const updated = await appointmentService.rescheduleAppointment(id, newDate, newTime);
+    setAppointments((prev) =>
+      prev.map((apt) => (apt.id === id ? { ...apt, ...updated, date: newDate, time: newTime, status: 'confirmed' } : apt))
     );
-  }, [update]);
+    return updated;
+  }, []);
+
+  const cancelAppointment = useCallback(async (id) => {
+    const updated = await appointmentService.cancelAppointment(id);
+    setAppointments((prev) =>
+      prev.map((apt) => (apt.id === id ? { ...apt, ...updated, status: 'cancelled' } : apt))
+    );
+    return updated;
+  }, []);
 
   const getUpcoming = useCallback(() => {
     const now = new Date();
     return appointments
-      .filter((apt) => apt.status === 'confirmed' && new Date(`${apt.date}T${apt.time}`) >= now)
-      .sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
+      .filter((apt) => {
+        const isConfirmed = apt.status?.toLowerCase() === 'confirmed' || apt.status === 'CONFIRMED';
+        if (!isConfirmed) return false;
+        const aptDateTime = new Date(`${apt.date || apt.appointmentDate}T${apt.time || apt.startTime}`);
+        return !isNaN(aptDateTime.getTime()) && aptDateTime >= now;
+      })
+      .sort((a, b) => new Date(`${a.date || a.appointmentDate}T${a.time || a.startTime}`) - new Date(`${b.date || b.appointmentDate}T${b.time || b.startTime}`));
   }, [appointments]);
 
   return (
     <AppointmentContext.Provider
-      value={{ appointments, bookAppointment, rescheduleAppointment, cancelAppointment, getUpcoming }}
+      value={{
+        appointments,
+        loading,
+        error,
+        bookAppointment,
+        rescheduleAppointment,
+        cancelAppointment,
+        getUpcoming,
+        reloadAppointments,
+      }}
     >
       {children}
     </AppointmentContext.Provider>

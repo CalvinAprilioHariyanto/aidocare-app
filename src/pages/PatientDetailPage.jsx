@@ -282,7 +282,14 @@ function MedicalRecordsTab({ patientId, patientName }) {
     }
   }, [patientId, showArchived]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    let active = true;
+    listMedicalRecords(patientId, { includeArchived: showArchived })
+      .then(data => { if (active) setRecords(data.records || []); })
+      .catch(e => { if (active) setError(e.message); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [patientId, showArchived]);
 
   async function handleCreate(form) {
     setSubmitting(true);
@@ -473,7 +480,7 @@ function MedicalRecordsTab({ patientId, patientName }) {
 /* ─────────────────────────────────────────────────────────────
    RECORD DETAIL VIEW (inside modal)
 ───────────────────────────────────────────────────────────── */
-function RecordDetailView({ record, onClose }) {
+function RecordDetailView({ record }) {
   const sections = [
     { label: 'Symptoms / Chief Complaint', value: record.symptoms },
     { label: 'Diagnosis', value: record.diagnosis },
@@ -545,7 +552,14 @@ function PrescriptionsTab({ patientId, patientName }) {
     }
   }, [patientId]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    let active = true;
+    listPrescriptions(patientId)
+      .then(data => { if (active) setPrescriptions(data.prescriptions || []); })
+      .catch(e => { if (active) setError(e.message); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [patientId]);
 
   async function handleCreate(form) {
     setSubmitting(true);
@@ -796,8 +810,6 @@ export function PatientDetailPage() {
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError(null);
     getPatient(patientId)
       .then(data => { if (active) setPatient(data.patient); })
       .catch(e => { if (active) setError(e.message); })
